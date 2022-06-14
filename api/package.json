@@ -6,12 +6,15 @@
   "scripts": {
     "start": "nodemon index",
     "test": "jest --watch",
-    "lint":"eslint ."
+    "lint": "eslint ."
   },
   "author": "Fotini Batzoni",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "bcrypt": "^5.0.1",
+    "express": "^4.18.1",
+    "sequelize": "^6.20.1",
+    "sqlite3": "^5.0.8"
   },
   "devDependencies": {
     "eslint": "^8.17.0",
@@ -29,7 +32,7 @@
       "eslint:recommended",
       "plugin:prettier/recommended"
     ],
-    "plugins":[
+    "plugins": [
       "prettier"
     ],
     "env": {
@@ -38,13 +41,12 @@
       "jest": true
     },
     "rules": {
-      "eqeqeq":"warn", 
-      "prettier/prettier":"warn"
+      "eqeqeq": "warn",
+      "prettier/prettier": "warn"
     }
   },
-  "prettier":{
-    "singleQuote":true,
-    "printWidth":120
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 120
   }
 }
-
