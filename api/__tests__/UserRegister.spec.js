@@ -179,4 +179,21 @@ describe('User Registration', () => {
   //   const body = response.body;
   //   expect(body.validationErrors.username).toBe('Must have min 4 and max 32 characters');
   // });
+
+  it('returns Email in use when the same email is already in use', async () => {
+    await User.create({ ...validUser });
+    const response = await postUser();
+    expect(response.body.validationErrors.email).toBe('Email in use');
+  });
+
+  it('returns errors for both username is null and email is in use', async () => {
+    await User.create({ ...validUser });
+    const response = await postUser({
+      username: null,
+      email: validUser.email,
+      password: 'P4ssword',
+    });
+    const body = response.body;
+    expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
+  });
 });
