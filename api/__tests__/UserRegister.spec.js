@@ -2,16 +2,42 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
-const nodemailerStub = require('nodemailer-stub');
-const EmailService = require('../src/email/EmailService');
+//const nodemailerStub = require('nodemailer-stub');
+const SMTPServer = require('smtp-server').SMTPServer;
+
+let lastMail, server;
+let simulateSmtpFailure = false;
 
 //to call the database before calling the tests
-beforeAll(() => {
-  return sequelize.sync();
+beforeAll(async () => {
+  server = new SMTPServer({
+    authOptional: true,
+    onData(stream, session, callback) {
+      let mailBody;
+      stream.on('data', (data) => {
+        mailBody += data.toString();
+      });
+      stream.on('end', () => {
+        if (simulateSmtpFailure) {
+          console.log('simulateSmtpFailure')
+          const err = new Error('Invalid mailbox');
+          err.responseCode = 553;
+          return callback(err);
+        }
+        lastMail = mailBody;
+        callback();
+      });
+    },
+  });
+
+  await server.listen(465, 'localhost');
+
+  await sequelize.sync();
 });
 
 //Cleaning the user table before each test
 beforeEach(() => {
+  simulateSmtpFailure = false;
   return User.destroy({ truncate: true });
 });
 
@@ -21,11 +47,14 @@ const validUser = {
   password: 'P4ssword',
 };
 
-const postUser = async (user = validUser, options = {}) => {
+afterAll(async () => {
+  await server.close();
+});
 
-  const agent = request(app).post('/api/1.0/users')
+const postUser = async (user = validUser, options = {}) => {
+  const agent = request(app).post('/api/1.0/users');
   if (options.language) {
-    agent.set('Accept-Language', options.language)
+    agent.set('Accept-Language', options.language);
   }
   return agent.send(user);
 };
@@ -157,22 +186,22 @@ describe('User Registration', () => {
   const email_inuse = 'Email in use';
 
   it.each`
-  field         | value              | expectedMessage
-  ${'username'} | ${null}            | ${username_null}
-  ${'username'} | ${'usr'}           | ${username_size}
-  ${'username'} | ${'a'.repeat(33)}  | ${username_size}
-  ${'email'}    | ${null}            | ${email_null}
-  ${'email'}    | ${'mail.com'}      | ${email_invalid}
-  ${'email'}    | ${'user.mail.com'} | ${email_invalid}
-  ${'email'}    | ${'user@mail'}     | ${email_invalid}
-  ${'password'} | ${null}            | ${password_null}
-  ${'password'} | ${'P4ss'}          | ${password_size}
-  ${'password'} | ${'alllowercase'}  | ${password_pattern}
-  ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-  ${'password'} | ${'125899'}        | ${password_pattern}
-  ${'password'} | ${'lower1234'}     | ${password_pattern}
-  ${'password'} | ${'UPPER125899'}   | ${password_pattern}
-  ${'password'} | ${'lowerUPPER'}    | ${password_pattern}
+    field         | value              | expectedMessage
+    ${'username'} | ${null}            | ${username_null}
+    ${'username'} | ${'usr'}           | ${username_size}
+    ${'username'} | ${'a'.repeat(33)}  | ${username_size}
+    ${'email'}    | ${null}            | ${email_null}
+    ${'email'}    | ${'mail.com'}      | ${email_invalid}
+    ${'email'}    | ${'user.mail.com'} | ${email_invalid}
+    ${'email'}    | ${'user@mail'}     | ${email_invalid}
+    ${'password'} | ${null}            | ${password_null}
+    ${'password'} | ${'P4ss'}          | ${password_size}
+    ${'password'} | ${'alllowercase'}  | ${password_pattern}
+    ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
+    ${'password'} | ${'125899'}        | ${password_pattern}
+    ${'password'} | ${'lower1234'}     | ${password_pattern}
+    ${'password'} | ${'UPPER125899'}   | ${password_pattern}
+    ${'password'} | ${'lowerUPPER'}    | ${password_pattern}
   `('returns $expectedMessage when $field is $value', async ({ field, expectedMessage, value }) => {
     const user = {
       username: 'user1',
@@ -221,12 +250,12 @@ describe('User Registration', () => {
   });
 
   it('creates user in inactive mode even if request body contains inactive is false', async () => {
-    const newUser = { ...validUser,inactive:  false}
+    const newUser = { ...validUser, inactive: false };
     await postUser(newUser);
     const users = await User.findAll();
     const savedUser = users[0];
     expect(savedUser.inactive).toBe(true);
-  })
+  });
 
   it('creates an activationToken for user', async () => {
     await postUser();
@@ -237,44 +266,70 @@ describe('User Registration', () => {
 
   it('sends an Account activation email with activationToken', async () => {
     await postUser();
-    const lastMail = nodemailerStub.interactsWithMail.lastMail();
-    expect(lastMail.to[0]).toBe('user1@mail.com');
+
+    //with nodemailer
+    //const lastMail = nodemailerStub.interactsWithMail.lastMail();
+    //expect(lastMail.to[0]).toBe('user1@mail.com');
+    //const users = await User.findAll();
+    //const savedUser = users[0];
+    //expect(lastMail.content).toContain(savedUser.activationToken);
+
+    //with SMTPServer
     const users = await User.findAll();
     const savedUser = users[0];
-    expect(lastMail.content).toContain(savedUser.activationToken);
+    expect(lastMail).toContain('user1@mail.com');
+    expect(lastMail).toContain(savedUser.activationToken);
   });
 
   it(`returns 502 Bad Gateaway when email fails`, async () => {
-    const mockSendAccountActivation =jest
-      .spyOn(EmailService, 'sendAccountActivation')
-      .mockRejectedValue({message:'Failed to deliver email'});
+    //with mock
+    // const mockSendAccountActivation =jest
+    //   .spyOn(EmailService, 'sendAccountActivation')
+    //   .mockRejectedValue({message:'Failed to deliver email'});
+    //const response = await postUser();
+    //expect(response.status).toBe(502);
+    //mockSendAccountActivation.mockRestore();
+
+    //with server
+    simulateSmtpFailure = true;
     const response = await postUser();
     expect(response.status).toBe(502);
-    mockSendAccountActivation.mockRestore();
   });
 
   it(`returns email failure message when email fails`, async () => {
-    const mockSendAccountActivation =jest
-      .spyOn(EmailService, 'sendAccountActivation')
-      .mockRejectedValue({message:'Failed to deliver email'});
+    //with mock
+    // const mockSendAccountActivation =jest
+    //   .spyOn(EmailService, 'sendAccountActivation')
+    //   .mockRejectedValue({message:'Failed to deliver email'});
+    // const response = await postUser();
+    // mockSendAccountActivation.mockRestore();
+    // expect(response.body.message).toBe('Email failure');
+
+    //with server
+    simulateSmtpFailure = true;
     const response = await postUser();
-    mockSendAccountActivation.mockRestore();
     expect(response.body.message).toBe('Email failure');
-  }); 
+  });
 
   it(`does not save user to database if activation mail fails`, async () => {
-    const mockSendAccountActivation =jest
-      .spyOn(EmailService, 'sendAccountActivation')
-      .mockRejectedValue({message:'Failed to deliver email'});
+    //with mock
+    // const mockSendAccountActivation =jest
+    //   .spyOn(EmailService, 'sendAccountActivation')
+    //   .mockRejectedValue({message:'Failed to deliver email'});
+    // await postUser();
+    // mockSendAccountActivation.mockRestore();
+    // const users = await User.findAll();
+    // expect(users.length).toBe(0);
+
+    //with server
+    simulateSmtpFailure = true;
     await postUser();
-    mockSendAccountActivation.mockRestore();
     const users = await User.findAll();
     expect(users.length).toBe(0);
-  });  
+  });
 });
 
 describe('Internationalization', () => {
-
   const username_null = 'Το όνομα χρήστη δεν μπορεί να είναι κενό πεδίο';
   const username_size = 'Απαιτούνται τουλάχιστον 4 και το πολύ 32 χαρακτήρες';
   const email_null = 'Το email δεν μπορεί να είναι κενό πεδίο';
@@ -284,56 +339,63 @@ describe('Internationalization', () => {
   const password_pattern = 'Απαιτείται τουλάχιστον 1 κεφαλαίο, 1 μικρό γραμμα και 1 χαρακτήρας';
   const email_inuse = 'Το email χρησιμοποιείται ήδη';
   const user_create_success = 'Ο χρήστης δημιουργήθηκε επιτυχώς';
-  const email_failure = 'Η αποστολή του email απέτυχε'
-  
+  const email_failure = 'Η αποστολή του email απέτυχε';
+
   it.each`
     field         | value              | expectedMessage
-      ${'username'} | ${null}            | ${username_null}
-      ${'username'} | ${'usr'}           | ${username_size}
-      ${'username'} | ${'a'.repeat(33)}  | ${username_size}
-      ${'email'}    | ${null}            | ${email_null}
-      ${'email'}    | ${'mail.com'}      | ${email_invalid}
-      ${'email'}    | ${'user.mail.com'} | ${email_invalid}
-      ${'email'}    | ${'user@mail'}     | ${email_invalid}
-      ${'password'} | ${null}            | ${password_null}
-      ${'password'} | ${'P4ss'}          | ${password_size}
-      ${'password'} | ${'alllowercase'}  | ${password_pattern}
-      ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-      ${'password'} | ${'125899'}        | ${password_pattern}
-      ${'password'} | ${'lower1234'}     | ${password_pattern}
-      ${'password'} | ${'UPPER125899'}   | ${password_pattern}
-      ${'password'} | ${'lowerUPPER'}    | ${password_pattern}
-      `(
-        'returns $expectedMessage when $field is $value when greek is set as language',
-        async ({ field, expectedMessage, value }) => {
-          const user = {
-            username: 'user1',
-            email: 'user1@mail.com',
-            password: 'P4ssword',
-          };
-          user[field] = value;
-          const response = await postUser(user, {language:'gr'});
-          const body = response.body;
-          expect(body.validationErrors[field]).toBe(expectedMessage);
-      });
-  
-    it(`returns ${email_inuse} when the same email is already in use when greek is set as language`, async () => {
-      await User.create({ ...validUser });
-      const response = await postUser({ ...validUser }, {language:'gr'});
-      expect(response.body.validationErrors.email).toBe(email_inuse);
-    });
+    ${'username'} | ${null}            | ${username_null}
+    ${'username'} | ${'usr'}           | ${username_size}
+    ${'username'} | ${'a'.repeat(33)}  | ${username_size}
+    ${'email'}    | ${null}            | ${email_null}
+    ${'email'}    | ${'mail.com'}      | ${email_invalid}
+    ${'email'}    | ${'user.mail.com'} | ${email_invalid}
+    ${'email'}    | ${'user@mail'}     | ${email_invalid}
+    ${'password'} | ${null}            | ${password_null}
+    ${'password'} | ${'P4ss'}          | ${password_size}
+    ${'password'} | ${'alllowercase'}  | ${password_pattern}
+    ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
+    ${'password'} | ${'125899'}        | ${password_pattern}
+    ${'password'} | ${'lower1234'}     | ${password_pattern}
+    ${'password'} | ${'UPPER125899'}   | ${password_pattern}
+    ${'password'} | ${'lowerUPPER'}    | ${password_pattern}
+  `(
+    'returns $expectedMessage when $field is $value when greek is set as language',
+    async ({ field, expectedMessage, value }) => {
+      const user = {
+        username: 'user1',
+        email: 'user1@mail.com',
+        password: 'P4ssword',
+      };
+      user[field] = value;
+      const response = await postUser(user, { language: 'gr' });
+      const body = response.body;
+      expect(body.validationErrors[field]).toBe(expectedMessage);
+    }
+  );
 
-    it(`returns success message of ${user_create_success} when signup request is in greek`, async () => {
-      const response = await postUser({...validUser}, {language:'gr'});
-      expect(response.body.message).toBe(user_create_success);
-    })
+  it(`returns ${email_inuse} when the same email is already in use when greek is set as language`, async () => {
+    await User.create({ ...validUser });
+    const response = await postUser({ ...validUser }, { language: 'gr' });
+    expect(response.body.validationErrors.email).toBe(email_inuse);
+  });
 
-    it(`returns ${email_failure} message when email fails and language is greek`, async () => {
-      const mockSendAccountActivation =jest
-        .spyOn(EmailService, 'sendAccountActivation')
-        .mockRejectedValue({message:'Failed to deliver email'});
-      const response = await postUser({...validUser}, {language:'gr'});
-      mockSendAccountActivation.mockRestore();
-      expect(response.body.message).toBe(email_failure);
-    }); 
+  it(`returns success message of ${user_create_success} when signup request is in greek`, async () => {
+    const response = await postUser({ ...validUser }, { language: 'gr' });
+    expect(response.body.message).toBe(user_create_success);
+  });
+
+  it(`returns ${email_failure} message when email fails and language is greek`, async () => {
+    //with mock
+    // const mockSendAccountActivation =jest
+    //   .spyOn(EmailService, 'sendAccountActivation')
+    //   .mockRejectedValue({message:'Failed to deliver email'});
+    // const response = await postUser({...validUser}, {language:'gr'});
+    // mockSendAccountActivation.mockRestore();
+    // expect(response.body.message).toBe(email_failure);
+
+    //with server
+    simulateSmtpFailure = true;
+    const response = await postUser({ ...validUser }, { language: 'gr' });
+    expect(response.body.message).toBe(email_failure);
+  });
 });

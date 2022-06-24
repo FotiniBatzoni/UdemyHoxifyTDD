@@ -5,12 +5,12 @@ const EmailService = require('../email/EmailService');
 const sequelize = require('../config/database');
 const EmailException = require('../email/EmailException');
 
-const generateToken = (length) =>{
-  return crypto.randomBytes(length).toString('hex').substring(0,length);
-}
+const generateToken = (length) => {
+  return crypto.randomBytes(length).toString('hex').substring(0, length);
+};
 
 const save = async (body) => {
-  const { username,email,password } = body;
+  const { username, email, password } = body;
   const hash = await bcrypt.hash(password, 10);
   //const user = Object.assign({}, req.body, { password: hash });
   //or
@@ -22,17 +22,16 @@ const save = async (body) => {
   //   password: hash,
   // };
   const transaction = await sequelize.transaction();
-  await User.create(user, {transaction});
+  await User.create(user, { transaction });
   //if email is successfully send save the user to Database (try)
   //else rollback (catch)
-  try{
-    await EmailService.sendAccountActivation(email,user.activationToken);
+  try {
+    await EmailService.sendAccountActivation(email, user.activationToken);
     await transaction.commit();
-  }catch(err){
+  } catch (err) {
     await transaction.rollback();
     throw new EmailException();
   }
-
 };
 
 const findByEmail = async (email) => {
