@@ -26,7 +26,7 @@ User.init(
   },
   {
     sequelize,
-    modelName: 'user',
+    modelName: 'user', //table name
     logging: false,
   }
 );

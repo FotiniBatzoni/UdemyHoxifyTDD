@@ -19,7 +19,6 @@ beforeAll(async () => {
       });
       stream.on('end', () => {
         if (simulateSmtpFailure) {
-          console.log('simulateSmtpFailure')
           const err = new Error('Invalid mailbox');
           err.responseCode = 553;
           return callback(err);
@@ -394,8 +393,22 @@ describe('Internationalization', () => {
     // expect(response.body.message).toBe(email_failure);
 
     //with server
-    simulateSmtpFailure = true;
-    const response = await postUser({ ...validUser }, { language: 'gr' });
+    // simulateSmtpFailure = true;
+    const response = await  ({ ...validUser }, { language: 'gr' });
     expect(response.body.message).toBe(email_failure);
+  });
+});
+
+describe('Account activation', () => {
+  it('activates the account when correct token is sent', async () => {
+    await postUser();
+    let users = await User.findAll();
+    const token = users[0].activationToken;
+
+    await request(app)
+      .post('/api/1.0/users/token/' + token)
+      .send();
+    users = await User.findAll();
+    expect(users[0].inactive).toBe(false);
   });
 });

@@ -58,17 +58,22 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const validationErrors = {};
-      errors.array().forEach((error) => (validationErrors[error.param] = req.t(error.msg)));  //req.t(error.msg) from t18next middleware
+      errors.array().forEach((error) => (validationErrors[error.param] = req.t(error.msg))); //req.t(error.msg) from t18next middleware
       return res.status(400).send({ validationErrors: validationErrors });
     }
-    try{
+    try {
       await UserService.save(req.body);
       return res.send({ message: req.t('user_create_success') });
-    }catch(err){
-      return res.status(502).send({message:req.t(err.message)});
+    } catch (err) {
+      return res.status(502).send({ message: req.t(err.message) });
     }
-
   }
 );
+
+router.post('/api/1.0/users/token/:token', async (req, res) => {
+  const token = req.params.token;
+  await UserService.activate(token);
+  return res.send();
+});
 
 module.exports = router;
