@@ -9,5 +9,7 @@
     "password_pattern":  "Απαιτείται τουλάχιστον 1 κεφαλαίο, 1 μικρό γραμμα και 1 χαρακτήρας",
     "email_inuse":  "Το email χρησιμοποιείται ήδη",
     "user_create_success": "Ο χρήστης δημιουργήθηκε επιτυχώς",
-    "email_failure": "Η αποστολή του email απέτυχε"
+    "email_failure": "Η αποστολή του email απέτυχε",
+    "account_activation_failure": "Ο λογαριασμός είναι ενεργός ή το token είναι λαθός",
+    "account_activation_success": "Ο λογαριασμός ενεργοποιήθηκε"
 }
