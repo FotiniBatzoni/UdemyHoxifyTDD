@@ -22,8 +22,10 @@ const save = async (body) => {
   //   email: req.body.email,
   //   password: hash,
   // };
+
   const transaction = await sequelize.transaction();
   await User.create(user, { transaction });
+
   //if email is successfully send save the user to Database (try)
   //else rollback (catch)
   try {
@@ -43,6 +45,7 @@ const activate = async (token) => {
   const user = await User.findOne({ where: { activationToken: token } });
   user.inactive = false;
   await user.save();
+  console.log(user);
 };
 
 module.exports = { save, findByEmail, activate };

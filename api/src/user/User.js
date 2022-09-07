@@ -18,11 +18,11 @@ User.init(
     },
     inactive: {
       type: Sequelize.BOOLEAN,
-      defaultValue: true
+      defaultValue: true,
     },
     activationToken: {
       type: Sequelize.STRING,
-    }
+    },
   },
   {
     sequelize,
