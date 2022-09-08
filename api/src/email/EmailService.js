@@ -38,9 +38,38 @@ const sendAccountActivation = async (email, token) => {
     from: 'My App <f.batzoni@gmail.com>',
     to: email,
     subject: 'Account Activation',
-    html: `Token is ${token}`,
+    html: `
+    <div>
+      <b>
+        Please click below link to activate your account
+      </b>
+    </div>
+    <div>
+      <a href = "http://localhost:3200/#/login?token=${token}>Activate</a>
+    </div>`
   });
 };
+
+
+//with https://ethereal.email/create
+
+// const sendAccountActivation = async (email, token) => {
+//   const info = await transporter.sendMail({
+//     from: 'My App <f.batzoni@gmail.com>',
+//     to: email,
+//     subject: 'Account Activation',
+//     html: `
+//        <div>
+//             <b>Please click below link to activate your account</b>
+//        </div>
+//        <div>
+//             <a href = "http://localhost:3200/#/login?token=${token}>Activate</a>
+//        </div>`
+//   });
+//    if(process.env.NODE_ENV === 'development'){
+//      console.log('url: ' + nodemailer.getTestMessageUrl(info));
+//      }
+// };
 
 module.exports = {
   sendAccountActivation,
