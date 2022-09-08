@@ -4,6 +4,12 @@ const nodemailer = require('nodemailer');
 const nodemailerStub = require('nodemailer-stub');
 const transporter = nodemailer.createTransport(nodemailerStub.stubTransport);
 
+//with https://ethereal.email/create
+const config = require('config');
+const transportert = nodemailer.createTransport({ ...mailConfig});
+
+
+
 // //with mock SMTPServer
 // const transporter = nodemailer.createTransport({
 //   host: 'localhost',
