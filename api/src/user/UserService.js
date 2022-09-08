@@ -64,7 +64,7 @@ const getUsers = async () =>{
     content: usersWithCount.rows,
     page: 0,
     size: 10,
-    totalPages: Math.ceil(usersWithCount.count / pageSize),
+    totalPages: Math.ceil( usersWithCount.count / pageSize),
   }
 }
 
