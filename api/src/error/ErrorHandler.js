@@ -6,5 +6,9 @@ module.exports = ((err,req,res,next) =>{
       validationErrors = {};
       errors.forEach((error) => (validationErrors[error.param] = req.t(error.msg))); //req.t(error.msg) from t18next middleware
     }
-    res.status(status).send({ message: req.t(message), validationErrors });
+    res.status(status).send({ 
+      path: req.originalUrl,
+      timestamp :'',
+      message: req.t(message), 
+      validationErrors });
   });

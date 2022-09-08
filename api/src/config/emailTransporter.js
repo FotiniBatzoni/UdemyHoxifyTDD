@@ -1,20 +1,21 @@
 const nodemailer = require('nodemailer');
 
 //with nodemailer-stub
-const nodemailerStub = require('nodemailer-stub');
-const transporter = nodemailer.createTransport(nodemailerStub.stubTransport);
+//const nodemailerStub = require('nodemailer-stub');
+//const transporter = nodemailer.createTransport(nodemailerStub.stubTransport);
 
 //with https://ethereal.email/create
 const config = require('config');
-const transportert = nodemailer.createTransport({ ...mailConfig});
+const mailConfig = config.get('mail');
+const transporter = nodemailer.createTransport({ ...mailConfig});
 
 
 
-// //with mock SMTPServer
+// // //with mock SMTPServer
 // const transporter = nodemailer.createTransport({
 //   host: 'localhost',
 //   port: 8587,
-//   secure: false,
+//   //secure: false,
 //   tls: {
 //     rejectUnauthorized: false,
 //   },
