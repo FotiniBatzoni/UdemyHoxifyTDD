@@ -345,8 +345,11 @@ describe('User Registration', () => {
 
 });
 
+
+
 // describe('Internationalization', () => {
-//   const username_null = 'Το όνομα χρήστη δεν μπορεί να είναι κενό πεδίο';
+
+//     const username_null = 'Το όνομα χρήστη δεν μπορεί να είναι κενό πεδίο';
 //   const username_size = 'Απαιτούνται τουλάχιστον 4 και το πολύ 32 χαρακτήρες';
 //   const email_null = 'Το email δεν μπορεί να είναι κενό πεδίο';
 //   const email_invalid = 'Λάθος email';
@@ -368,15 +371,15 @@ describe('User Registration', () => {
 //     ${'email'}    | ${'user.mail.com'} | ${email_invalid}
 //     ${'email'}    | ${'user@mail'}     | ${email_invalid}
 //     ${'password'} | ${null}            | ${password_null}
-//     ${'password'} | ${'P4ss'}          | ${password_size}
+//     ${'password'} | ${'P4ssw'}         | ${password_size}
 //     ${'password'} | ${'alllowercase'}  | ${password_pattern}
 //     ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-//     ${'password'} | ${'125899'}        | ${password_pattern}
-//     ${'password'} | ${'lower1234'}     | ${password_pattern}
-//     ${'password'} | ${'UPPER125899'}   | ${password_pattern}
-//     ${'password'} | ${'lowerUPPER'}    | ${password_pattern}
+//     ${'password'} | ${'1234567890'}    | ${password_pattern}
+//     ${'password'} | ${'lowerandUPPER'} | ${password_pattern}
+//     ${'password'} | ${'lower4nd5667'}  | ${password_pattern}
+//     ${'password'} | ${'UPPER44444'}    | ${password_pattern}
 //   `(
-//     'returns $expectedMessage when $field is $value when greek is set as language',
+//     'returns $expectedMessage when $field is $value when language is set as greek',
 //     async ({ field, expectedMessage, value }) => {
 //       const user = {
 //         username: 'user1',
@@ -390,19 +393,19 @@ describe('User Registration', () => {
 //     }
 //   );
 
-//   it(`returns ${email_inuse} when the same email is already in use when greek is set as language`, async () => {
+//   it(`returns ${email_inuse} when same email is already in use when language is set as greek`, async () => {
 //     await User.create({ ...validUser });
 //     const response = await postUser({ ...validUser }, { language: 'gr' });
 //     expect(response.body.validationErrors.email).toBe(email_inuse);
 //   });
 
-//   it(`returns success message of ${user_create_success} when signup request is in greek`, async () => {
+//   it(`returns success message of ${user_create_success} when signup request is valid and language is set as greek`, async () => {
 //     const response = await postUser({ ...validUser }, { language: 'gr' });
-//     expect(response.body.message).toBe(user_create_success);
+//     expect(response.body.message).toBe(tr.user_create_success);
 //   });
 
-//   it(`returns ${email_failure} message when email fails and language is greek`, async () => {
-//     //with mock
+//   it(`returns ${email_failure} message when sending email fails and language is set as greek`, async () => {
+//        //with mock
 //     // const mockSendAccountActivation = jest
 //     //   .spyOn(EmailService, 'sendAccountActivation')
 //     //   .mockRejectedValue({ message: 'Failed to deliver email' });
@@ -412,193 +415,119 @@ describe('User Registration', () => {
 
 //     //with server
 //     simulateSmtpFailure = true;
-//     const response = await ({ ...validUser }, { language: 'gr' });
-//     expect(response.body.message).toBe(email_failure);
+//     const response = await postUser({ ...validUser }, { language: 'tr' });
+//     expect(response.body.message).toBe(tr.email_failure);
 //   });
 
-//   it(`returns ${validation_failure} message when sending email fails and language id greek`, async() =>{
+//   it(`returns ${validation_failure} message in error response body when validation fails`, async () => {
 //     const response = await postUser(
 //       {
 //         username: null,
 //         email: validUser.email,
-//         password: 'P4ssword'
+//         password: 'P4ssword',
 //       },
-//       {
-//         language: 'gr'
-//       }
+//       { language: 'gr' }
 //     );
-//     expect(response.body.message).toBe(validation_failure);
-//   })
+//     expect(response.body.message).toBe(tr.validation_failure);
+//   });
 // });
 
-describe('Internationalization', () => {
-  it.each`
-    field         | value              | expectedMessage
-    ${'username'} | ${null}            | ${username_null}
-    ${'username'} | ${'usr'}           | ${username_size}
-    ${'username'} | ${'a'.repeat(33)}  | ${username_size}
-    ${'email'}    | ${null}            | ${email_null}
-    ${'email'}    | ${'mail.com'}      | ${email_invalid}
-    ${'email'}    | ${'user.mail.com'} | ${email_invalid}
-    ${'email'}    | ${'user@mail'}     | ${email_invalid}
-    ${'password'} | ${null}            | ${password_null}
-    ${'password'} | ${'P4ssw'}         | ${password_size}
-    ${'password'} | ${'alllowercase'}  | ${password_pattern}
-    ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-    ${'password'} | ${'1234567890'}    | ${password_pattern}
-    ${'password'} | ${'lowerandUPPER'} | ${password_pattern}
-    ${'password'} | ${'lower4nd5667'}  | ${password_pattern}
-    ${'password'} | ${'UPPER44444'}    | ${password_pattern}
-  `(
-    'returns $expectedMessage when $field is $value when language is set as greek',
-    async ({ field, expectedMessage, value }) => {
-      const user = {
-        username: 'user1',
-        email: 'user1@mail.com',
-        password: 'P4ssword',
-      };
-      user[field] = value;
-      const response = await postUser(user, { language: 'gr' });
-      const body = response.body;
-      expect(body.validationErrors[field]).toBe(expectedMessage);
-    }
-  );
+// describe('Account activation', () => {
+//   it('activates the account when correct token is sent', async () => {
+//     await postUser();
+//     let users = await User.findAll();
+//     const token = users[0].activationToken;
 
-  it(`returns ${email_inuse} when same email is already in use when language is set as greek`, async () => {
-    await User.create({ ...validUser });
-    const response = await postUser({ ...validUser }, { language: 'gr' });
-    expect(response.body.validationErrors.email).toBe(email_inuse);
-  });
+//     await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     users = await User.findAll();
+//     expect(users[0].inactive).toBe(false);
+//   });
+//   it('removes the token from user table after successful activation', async () => {
+//     await postUser();
+//     let users = await User.findAll();
+//     const token = users[0].activationToken;
 
-  it(`returns success message of ${user_create_success} when signup request is valid and language is set as greek`, async () => {
-    const response = await postUser({ ...validUser }, { language: 'gr' });
-    expect(response.body.message).toBe(tr.user_create_success);
-  });
+//     await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     users = await User.findAll();
+//     expect(users[0].activationToken).toBeFalsy();
+//   });
+//   it('does not activate the account when token is wrong', async () => {
+//     await postUser();
+//     const token = 'this-token-does-not-exist';
+//     await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     const users = await User.findAll();
+//     expect(users[0].inactive).toBe(true);
+//   });
+//   it('returns bad request when token is wrong', async () => {
+//     await postUser();
+//     const token = 'this-token-does-not-exist';
+//     const response = await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     expect(response.status).toBe(400);
+//   });
 
-  it(`returns ${email_failure} message when sending email fails and language is set as greek`, async () => {
-       //with mock
-    // const mockSendAccountActivation = jest
-    //   .spyOn(EmailService, 'sendAccountActivation')
-    //   .mockRejectedValue({ message: 'Failed to deliver email' });
-    // const response = await postUser({ ...validUser }, { language: 'gr' });
-    // mockSendAccountActivation.mockRestore();
-    // expect(response.body.message).toBe(email_failure);
+//   it.each`
+//     language | tokenStatus  | message
+//     ${'tr'}  | ${'wrong'}   | ${tr.account_activation_failure}
+//     ${'en'}  | ${'wrong'}   | ${en.account_activation_failure}
+//     ${'tr'}  | ${'correct'} | ${tr.account_activation_success}
+//     ${'en'}  | ${'correct'} | ${en.account_activation_success}
+//   `(
+//     'returns $message when token is $tokenStatus and language is $language',
+//     async ({ language, tokenStatus, message }) => {
+//       await postUser();
+//       let token = 'this-token-does-not-exist';
+//       if (tokenStatus === 'correct') {
+//         let users = await User.findAll();
+//         token = users[0].activationToken;
+//       }
+//       const response = await request(app)
+//         .post('/api/1.0/users/token/' + token)
+//         .set('Accept-Language', language)
+//         .send();
+//       expect(response.body.message).toBe(message);
+//     }
+//   );
+// });
 
-    //with server
-    simulateSmtpFailure = true;
-    const response = await postUser({ ...validUser }, { language: 'tr' });
-    expect(response.body.message).toBe(tr.email_failure);
-  });
-
-  it(`returns ${validation_failure} message in error response body when validation fails`, async () => {
-    const response = await postUser(
-      {
-        username: null,
-        email: validUser.email,
-        password: 'P4ssword',
-      },
-      { language: 'gr' }
-    );
-    expect(response.body.message).toBe(tr.validation_failure);
-  });
-});
-
-describe('Account activation', () => {
-  it('activates the account when correct token is sent', async () => {
-    await postUser();
-    let users = await User.findAll();
-    const token = users[0].activationToken;
-
-    await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    users = await User.findAll();
-    expect(users[0].inactive).toBe(false);
-  });
-  it('removes the token from user table after successful activation', async () => {
-    await postUser();
-    let users = await User.findAll();
-    const token = users[0].activationToken;
-
-    await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    users = await User.findAll();
-    expect(users[0].activationToken).toBeFalsy();
-  });
-  it('does not activate the account when token is wrong', async () => {
-    await postUser();
-    const token = 'this-token-does-not-exist';
-    await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    const users = await User.findAll();
-    expect(users[0].inactive).toBe(true);
-  });
-  it('returns bad request when token is wrong', async () => {
-    await postUser();
-    const token = 'this-token-does-not-exist';
-    const response = await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    expect(response.status).toBe(400);
-  });
-
-  it.each`
-    language | tokenStatus  | message
-    ${'tr'}  | ${'wrong'}   | ${tr.account_activation_failure}
-    ${'en'}  | ${'wrong'}   | ${en.account_activation_failure}
-    ${'tr'}  | ${'correct'} | ${tr.account_activation_success}
-    ${'en'}  | ${'correct'} | ${en.account_activation_success}
-  `(
-    'returns $message when token is $tokenStatus and language is $language',
-    async ({ language, tokenStatus, message }) => {
-      await postUser();
-      let token = 'this-token-does-not-exist';
-      if (tokenStatus === 'correct') {
-        let users = await User.findAll();
-        token = users[0].activationToken;
-      }
-      const response = await request(app)
-        .post('/api/1.0/users/token/' + token)
-        .set('Accept-Language', language)
-        .send();
-      expect(response.body.message).toBe(message);
-    }
-  );
-});
-
-describe('Error Model', () => {
-  it('returns path, timestamp, message and validationErrors in response when validation failure', async () => {
-    const response = await postUser({ ...validUser, username: null });
-    const body = response.body;
-    expect(Object.keys(body)).toEqual(['path', 'timestamp', 'message', 'validationErrors']);
-  });
-  it('returns path, timestamp and message in response when request fails other than validation error', async () => {
-    const token = 'this-token-does-not-exist';
-    const response = await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    const body = response.body;
-    expect(Object.keys(body)).toEqual(['path', 'timestamp', 'message']);
-  });
-  it('returns path in error body', async () => {
-    const token = 'this-token-does-not-exist';
-    const response = await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    const body = response.body;
-    expect(body.path).toEqual('/api/1.0/users/token/' + token);
-  });
-  it('returns timestamp in milliseconds within 5 seconds value in error body', async () => {
-    const nowInMillis = new Date().getTime();
-    const fiveSecondsLater = nowInMillis + 5 * 1000;
-    const token = 'this-token-does-not-exist';
-    const response = await request(app)
-      .post('/api/1.0/users/token/' + token)
-      .send();
-    const body = response.body;
-    expect(body.timestamp).toBeGreaterThan(nowInMillis);
-    expect(body.timestamp).toBeLessThan(fiveSecondsLater);
-  });
-});
+// describe('Error Model', () => {
+//   it('returns path, timestamp, message and validationErrors in response when validation failure', async () => {
+//     const response = await postUser({ ...validUser, username: null });
+//     const body = response.body;
+//     expect(Object.keys(body)).toEqual(['path', 'timestamp', 'message', 'validationErrors']);
+//   });
+//   it('returns path, timestamp and message in response when request fails other than validation error', async () => {
+//     const token = 'this-token-does-not-exist';
+//     const response = await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     const body = response.body;
+//     expect(Object.keys(body)).toEqual(['path', 'timestamp', 'message']);
+//   });
+//   it('returns path in error body', async () => {
+//     const token = 'this-token-does-not-exist';
+//     const response = await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     const body = response.body;
+//     expect(body.path).toEqual('/api/1.0/users/token/' + token);
+//   });
+//   it('returns timestamp in milliseconds within 5 seconds value in error body', async () => {
+//     const nowInMillis = new Date().getTime();
+//     const fiveSecondsLater = nowInMillis + 5 * 1000;
+//     const token = 'this-token-does-not-exist';
+//     const response = await request(app)
+//       .post('/api/1.0/users/token/' + token)
+//       .send();
+//     const body = response.body;
+//     expect(body.timestamp).toBeGreaterThan(nowInMillis);
+//     expect(body.timestamp).toBeLessThan(fiveSecondsLater);
+//   });
+// });
