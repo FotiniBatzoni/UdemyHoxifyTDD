@@ -13,5 +13,7 @@
     "account_activation_failure": "Ο λογαριασμός είναι ενεργός ή το token είναι λαθός",
     "account_activation_success": "Ο λογαριασμός ενεργοποιήθηκε",
     "validation_failure":"Λάθος στοιχεία",
-    "user_not_found":"Δεν βρέθηκε ο χρήστης"
+    "user_not_found":"Δεν βρέθηκε ο χρήστης",
+    "authentication_failure":"Λανθασμένα στοιχεία σύνδεσης",
+    "inactive_authentication_failure":"Ο λογαριασμός είναι ανενεργός"
 }
