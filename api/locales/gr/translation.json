@@ -15,5 +15,6 @@
     "validation_failure":"Λάθος στοιχεία",
     "user_not_found":"Δεν βρέθηκε ο χρήστης",
     "authentication_failure":"Λανθασμένα στοιχεία σύνδεσης",
-    "inactive_authentication_failure":"Ο λογαριασμός είναι ανενεργός"
+    "inactive_authentication_failure":"Ο λογαριασμός είναι ανενεργός",
+    "unauthorised_user_update":"Ο χρήστης δεν έχει δικαιωδοσία"
 }
