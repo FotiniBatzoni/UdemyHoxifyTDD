@@ -3,6 +3,8 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
 const SMTPServer = require('smtp-server').SMTPServer;
+const en = require('../locales/en/translation.json');
+const gr = require('../locales/gr/translation.json');
 
 //to call the database before calling the tests
 beforeAll(async () => {
@@ -10,8 +12,8 @@ beforeAll(async () => {
   });
   
   //Cleaning the user table before each test
-beforeEach(() => {
-    return User.destroy({ truncate: true });
+beforeEach(async () => {
+    await User.destroy({ truncate: true });
   });
 
   const getUsers = (options = {}) => {
@@ -132,8 +134,8 @@ describe('Get User', () => {
 
     it.each`
     language | message
-    ${'gr'}    | ${'Δεν βρέθηκε ο χρήστης'} 
-    ${'en'}    | ${'User not found'} 
+    ${'gr'}    | ${gr.user_not_found} 
+    ${'en'}    | ${en.user_not_found} 
     `('returns $message for unknown user when language is set to $language', async ({ language, message }) => {
         const response = await getUser().set('Accept-Language', language);
         expect(response.body.message).toBe(message);
