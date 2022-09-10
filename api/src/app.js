@@ -23,6 +23,8 @@ i18next
 
 const app = express();
 
+
+
 app.use(middleware.handle(i18next));
 
 app.use(express.json());

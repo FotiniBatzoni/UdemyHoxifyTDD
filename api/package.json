@@ -20,7 +20,9 @@
     "i18next-http-middleware": "^3.2.1",
     "nodemailer": "^6.7.5",
     "sequelize": "^6.20.1",
-    "sqlite3": "^5.0.8"
+    "sqlite3": "^5.0.8",
+    "winston": "^3.8.2",
+    "winston-transport-sequelize": "^4.0.10"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
@@ -63,7 +65,7 @@
     "watchPlugins": [
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
-  ],
-  "verbose": true
+    ],
+    "verbose": true
   }
 }

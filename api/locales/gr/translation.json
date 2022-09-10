@@ -12,5 +12,6 @@
     "email_failure": "Η αποστολή του email απέτυχε",
     "account_activation_failure": "Ο λογαριασμός είναι ενεργός ή το token είναι λαθός",
     "account_activation_success": "Ο λογαριασμός ενεργοποιήθηκε",
-    "validation_failure":"Λάθος στοιχεία"
+    "validation_failure":"Λάθος στοιχεία",
+    "user_not_found":"Δεν βρέθηκε ο χρήστης"
 }
