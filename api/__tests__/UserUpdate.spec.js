@@ -28,21 +28,40 @@ const addUser = async (user = {...activeUser}) =>{
     return await User.create(user);
 }
 
-const putUser = (id = 5, body = null, options = {} ) => {
-    const agent = request(app).put('/api/1.0/users/' + id);
-    if (options.language) {
-        agent.set('Accept-Language', options.language)
-    }
-    if(options.auth){
-        const { email, password } = options.auth;
-        agent.auth(email,password);
+const putUser = async  (id = 5, body = null, options = {} ) => {
+  let agent = request(app);
+  let token;
+      if(options.auth){
+        const response = await agent.post('/api/1.0/auth').send(options.auth);
+        token = response.body.token;
+
+      }
+
+     agent = request(app).put('/api/1.0/users/' + id);
+      if (options.language) {
+          agent.set('Accept-Language', options.language)
+      }
+
+      if(token){
+        agent.set('Authorization', `Bearer ${token}`)
+      }
+
+      return agent.send(body);
+
+    // const agent = request(app).put('/api/1.0/users/' + id);
+    // if (options.language) {
+    //     agent.set('Accept-Language', options.language)
+    // }
+    // if(options.auth){
+    //     const { email, password } = options.auth;
+    // agent.auth(email,password);
 
         // token
         // const merged = `${email}:${password}`;
         // const base64 = Buffer.from(merged).toString('base64');
         // agent.set('Authorization', `Basic ${base64 }`);
-        }
-    return agent.send(body);
+        //}
+    //return agent.send(body);
 }
 
 
@@ -96,6 +115,7 @@ describe('User Update', () => {
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated'};
         const response =  await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+     
         expect(response.status).toBe(200);
 
       });
@@ -104,6 +124,7 @@ describe('User Update', () => {
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated'};
         await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+     
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
 
         expect(inDBUser.username).toBe(validUpdate.username);

@@ -17,19 +17,23 @@ router.post('/api/1.0/auth',
     }
 
     const { email,password } = req.body;
+    
     const user = await UserService.findByEmail(email);
     if(!user){
         return next(new AuthenticationException());
     }
     const match = await bcrypt.compare(password, user.password);
+
     if(!match){
         return next(new AuthenticationException());
     }
+   
     if(user.inactive){
         return next(new ForbiddenException());
     }
 
     const token = TokenService.createToken(user);
+   
 
     res.send({
         id: user.id,

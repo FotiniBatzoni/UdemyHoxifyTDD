@@ -5,7 +5,7 @@ const basicAuthentication = async (req, res, next) =>{
     const authorization = req.headers.authorization;
 
     if(authorization){
-      const encoded = authorization.substring(6);
+      const encoded = authorization.substring(6);   
       const decoded = Buffer.from(encoded, 'base64').toString('ascii');
       const [email, password] = decoded.split(':');
       const user = await UserService.findByEmail(email);

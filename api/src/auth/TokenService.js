@@ -1,10 +1,19 @@
 const jwt = require('jsonwebtoken');
+const secret = 'this-is-secret-key'
+
 const createToken = (user) => {
-    const token = jwt.sign( { id:user.id }, 'this-is-our-secret');
-    return token
+    return jwt.sign( { id:user.id }, secret);
+    
 
 };
 
+const verify = (token) => {
+
+    return jwt.verify(token, secret);
+  
+}
+
 module.exports = {
-    createToken
+    createToken,
+    verify
 }

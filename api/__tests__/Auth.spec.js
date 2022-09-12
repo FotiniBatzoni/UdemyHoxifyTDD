@@ -59,8 +59,6 @@ describe( 'Authentication', () => {
          expect(response.body.id).toBe(user.id);
          expect(response.body.username).toBe(user.username);
 
-         console.log(response.body);
-         
          expect(Object.keys(response.body)).toEqual(['id','username','token']);
     });
 
@@ -150,8 +148,6 @@ describe( 'Authentication', () => {
       it('returns token in response body when credentias is correct', async() =>{
         await addUser();
         const response = await postAuthentication({ email:"user1@mail.com", password:"P4ssword"});
-
-        console.log(response.body.token)
         expect(response.body.token).not.toBeUndefined();
       })
 })
