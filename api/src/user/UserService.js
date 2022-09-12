@@ -2,6 +2,7 @@ const User = require('./User');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const EmailService = require('../email/EmailService');
+const Sequelize = require('sequelize');
 const sequelize = require('../config/database');
 const EmailException = require('../email/EmailException');
 // const sendEmail = require('../config/emailTransporter');
@@ -53,9 +54,14 @@ const activate = async (token) => {
   await user.save();
 };
 
-const getUsers = async ( page, size ) =>{
+const getUsers = async ( page, size, authedicatedUser = {} ) =>{
   const usersWithCount = await User.findAndCountAll({
-    where: { inactive: false},
+    where: { 
+      inactive: false,
+      id :{ 
+        [Sequelize.Op.not] : authedicatedUser.id ? authedicatedUser.id : 0 
+      }
+    },
     attributes: ['id', 'username', 'email'],
     limit: size,
     offset: page * size
@@ -86,9 +92,6 @@ const getUser = async (id) => {
 const updateUser = async (id, updatedBody) => {
   const user = await User.findOne({ where : { id : id}});
   user.username = updatedBody.username;
-
-  console.log(user.username);
-
 
   await user.save();
 }

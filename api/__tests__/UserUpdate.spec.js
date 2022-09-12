@@ -106,8 +106,6 @@ describe('User Update', () => {
         await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
 
-        console.log(inDBUser.username);
-
         expect(inDBUser.username).toBe(validUpdate.username);
 
       });

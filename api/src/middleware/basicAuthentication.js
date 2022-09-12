@@ -3,6 +3,7 @@ const UserService = require('../user/UserService');
 
 const basicAuthentication = async (req, res, next) =>{
     const authorization = req.headers.authorization;
+
     if(authorization){
       const encoded = authorization.substring(6);
       const decoded = Buffer.from(encoded, 'base64').toString('ascii');
@@ -15,6 +16,7 @@ const basicAuthentication = async (req, res, next) =>{
         }
       }
     }
+ 
     next();
 }
 
