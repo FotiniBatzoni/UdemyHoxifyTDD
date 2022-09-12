@@ -12,7 +12,6 @@ router.post('/api/1.0/auth',
 
     const errors = validationResult(req);
     if(!errors.isEmpty()){
-        console.log(new AuthenticationException())
         return next(new AuthenticationException());
     }
 

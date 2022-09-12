@@ -31,7 +31,7 @@ const save = async (body) => {
   //if email is successfully send save the user to Database (try)
   //else rollback (catch)
   try {
-    await EmailService.sendAccountActivation(email, user.activationToken);
+   // await EmailService.sendAccountActivation(email, user.activationToken);
     await transaction.commit();
   } catch (err) {
     await transaction.rollback();
@@ -83,5 +83,15 @@ const getUser = async (id) => {
   return user;
 };
 
+const updateUser = async (id, updatedBody) => {
+  const user = await User.findOne({ where : { id : id}});
+  user.username = updatedBody.username;
 
-module.exports = { save, findByEmail, activate, getUsers, getUser};
+  console.log(user.username);
+
+
+  await user.save();
+}
+
+
+module.exports = { save, findByEmail, activate, getUsers, getUser, updateUser};
