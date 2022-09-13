@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const secret = 'this-is-secret-key'
+// const jwt = require('jsonwebtoken');
+// const secret = 'this-is-secret-key'
 const { randomString } = require('../shared/generator');
 const Token = require('./Token');
 
@@ -19,7 +19,7 @@ const verify = async (token) => {
   
     const tokenInDb = await Token.findOne({ where : { token : token}});
     const userId = tokenInDb.userId;
-    return { id : userid };
+    return { id : userId };
 }
 
 module.exports = {
