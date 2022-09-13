@@ -6,6 +6,7 @@ const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 
+
 beforeAll( async () => {
     await sequelize.sync();
 })
@@ -34,7 +35,10 @@ const postAuthentication = async(credentials, options = {}) => {
         agent.set('Accept-Language', options.language)
     }
    return  await agent.send(credentials);
+};
 
+const postLogout = () =>{
+    return request(app).post('/api/1.0/logout').send();
 }
 
 
@@ -150,4 +154,12 @@ describe( 'Authentication', () => {
         const response = await postAuthentication({ email:"user1@mail.com", password:"P4ssword"});
         expect(response.body.token).not.toBeUndefined();
       })
+});
+
+describe('Logout', () => {
+    it('returns 200 ok when unauthorized request send for logout', async () =>{
+        const response = await postLogout();
+        //console.log(response)
+        expect(response.status).toBe(200);
+    })
 })
