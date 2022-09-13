@@ -8,6 +8,7 @@ const EmailException = require('../email/EmailException');
 // const sendEmail = require('../config/emailTransporter');
 const InvalidTokenException = require('./InvalidTokenException');
 const NotFoundException = require('./UserNotFoundException');
+const { parseConnectionUrl } = require('nodemailer/lib/shared');
 
 const generateToken = (length) => {
   return crypto.randomBytes(length).toString('hex').substring(0, length);
@@ -55,6 +56,7 @@ const activate = async (token) => {
 };
 
 const getUsers = async ( page, size, authedicatedUser = {} ) =>{
+
   const usersWithCount = await User.findAndCountAll({
     where: { 
       inactive: false,
@@ -66,6 +68,7 @@ const getUsers = async ( page, size, authedicatedUser = {} ) =>{
     limit: size,
     offset: page * size
   });
+
 
   return {
     content: usersWithCount.rows,
