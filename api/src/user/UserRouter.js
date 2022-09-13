@@ -91,6 +91,7 @@ router.post('/api/1.0/users/token/:token', async (req, res,next) => {
 
 
 router.get('/api/1.0/users', pagination,  tokenAuthentication, async(req,res) => {
+  //console.log(req)
   const authenticatedUser = req.authenticatedUser;
 
   const { page, size } = req.pagination;

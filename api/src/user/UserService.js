@@ -1,6 +1,5 @@
 const User = require('./User');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const EmailService = require('../email/EmailService');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/database');
@@ -9,17 +8,15 @@ const EmailException = require('../email/EmailException');
 const InvalidTokenException = require('./InvalidTokenException');
 const NotFoundException = require('./UserNotFoundException');
 const { parseConnectionUrl } = require('nodemailer/lib/shared');
+const { randomString } =require('../shared/generator')
 
-const generateToken = (length) => {
-  return crypto.randomBytes(length).toString('hex').substring(0, length);
-};
 
 const save = async (body) => {
   const { username, email, password } = body;
   const hash = await bcrypt.hash(password, 10);
   //const user = Object.assign({}, req.body, { password: hash });
   //or
-  const user = { username, email, password: hash, activationToken: generateToken(16) };
+  const user = { username, email, password: hash, activationToken: randomString(16) };
   //or
   // const user = {
   //   username: req.body.username,
