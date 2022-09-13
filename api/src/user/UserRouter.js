@@ -91,10 +91,10 @@ router.post('/api/1.0/users/token/:token', async (req, res,next) => {
 
 
 router.get('/api/1.0/users', pagination,  tokenAuthentication, async(req,res) => {
-  const authedicatedUser = req.authedicatedUser;
+  const authenticatedUser = req.authenticatedUser;
 
   const { page, size } = req.pagination;
-  const users = await UserService.getUsers(page,size, authedicatedUser);
+  const users = await UserService.getUsers(page,size, authenticatedUser);
 
   res.send(users);
 });

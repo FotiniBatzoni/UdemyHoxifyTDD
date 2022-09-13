@@ -1,22 +1,20 @@
 const TokenService = require('../auth/TokenService');
 
-const tokenAuthentication = async (req, res, next) =>{
-    const authorization = req.headers.authorization;
+const tokenAuthentication = async (req, res, next) => {
+  const authorization = req.headers.authorization;
 
-    if(authorization){
-      const token = authorization.substring(7); ////because is Bearer
+  if (authorization) {
+    const token = authorization.substring(7);
+    try {
+      const user = await TokenService.verify(token)
 
-      try{
-        const userToken = await TokenService.verify(token);
+      req.authenticatedUser = user;
 
-        req.authenticatedUser = userToken;
-      }catch(err){
-
-      }
-
+    } catch (err) {
+      // eslint-disable-next-line no-empty
     }
- 
-    next();
-}
+  }
+  next();
+};
 
 module.exports = tokenAuthentication;

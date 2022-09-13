@@ -24,6 +24,8 @@ beforeEach(async () => {
       const response = await request(app).post('/api/1.0/auth').send(options.auth);
       token = response.body.token;
     }
+
+    console.log('token in before each auth' + token)
     return token;
   };
 
