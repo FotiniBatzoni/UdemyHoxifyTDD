@@ -2,6 +2,7 @@
 // const secret = 'this-is-secret-key'
 const { randomString } = require('../shared/generator');
 const Token = require('./Token');
+const Sequelize = require('sequelize');
 
 const createToken = async (user) => {
         //return jwt.sign( { id:user.id }, secret, {expiresIn : 10}); //expires in 10 seconds
@@ -9,7 +10,8 @@ const createToken = async (user) => {
  
     await Token.create({
         token: token,
-        userId: user.id
+        userId: user.id,
+        lastUsedAt : new Date()
     })
     return token;
 };
@@ -17,7 +19,18 @@ const createToken = async (user) => {
 const verify = async (token) => {
     //return jwt.verify(token, secret);
   
-    const tokenInDb = await Token.findOne({ where : { token : token}});
+    
+    const oneWeekAgo = new Date(Date.now() - (7*24*60*60*1000))
+    const tokenInDb = await Token.findOne({ 
+        where : { 
+            token : token,
+            lastUsedAt:{
+                [Sequelize.Op.gt]: oneWeekAgo //gr = greater than
+        }
+    }});
+    tokenInDb.lastUsedAt = new Date();
+
+    await tokenInDb.save();
     const userId = tokenInDb.userId;
     return { id : userId };
 };

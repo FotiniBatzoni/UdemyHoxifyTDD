@@ -9,10 +9,14 @@ Token.init(
     {
         token:{
             type: Sequelize.STRING
+        },
+        lastUsedAt:{
+            type: Sequelize.DATE
         }
     },{
         sequelize,
-        modelName: 'token'
+        modelName: 'token',
+        timestamps : false
     }
 );
 

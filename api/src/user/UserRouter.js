@@ -7,7 +7,7 @@ const pagination = require('../middleware/pagination');
 //const UserNotFoundException = require('./UserNotFoundException');
 const ForbiddenException = require('../error/ForbiddenException');
 //const basicAuthentication = require('../middleware/basicAuthentication');
-const tokenAuthentication = require('../middleware/tokenAuthentication');
+//const tokenAuthentication = require('../middleware/tokenAuthentication');
 
 
 
@@ -92,7 +92,7 @@ router.post('/api/1.0/users/token/:token', async (req, res,next) => {
 
 
 
-router.get('/api/1.0/users', pagination,  tokenAuthentication, async(req,res) => {
+router.get('/api/1.0/users', pagination,  async(req,res) => {
   //console.log(req)
   const authenticatedUser = req.authenticatedUser;
 
@@ -112,7 +112,7 @@ router.get('/api/1.0/users/:id', async (req, res, next) => {
 });
 
 
-router.put('/api/1.0/users/:id', tokenAuthentication, async (req,res,next) => {
+router.put('/api/1.0/users/:id',  async (req,res,next) => {
   const authedicatedUser = req.authenticatedUser;
 
   if(!authedicatedUser || authedicatedUser.id != req.params.id ){
@@ -126,7 +126,7 @@ router.put('/api/1.0/users/:id', tokenAuthentication, async (req,res,next) => {
 });
 
 
-router.delete('/api/1.0/users/:id', tokenAuthentication, async (req,res,next) => {
+router.delete('/api/1.0/users/:id', async (req,res,next) => {
   const authenticatedUser = req.authenticatedUser;
   if(!authenticatedUser || authenticatedUser.id != req.params.id ){
     return next(new ForbiddenException('unauthorised_user_delete'));

@@ -176,4 +176,75 @@ describe('Logout', () => {
         const storedToken = await Token.findOne({ where : { token: token }});
         expect(storedToken).toBeNull();
     })
+});
+
+
+describe('Token Expiration' , () => {
+
+    const putUser = async  (id = 5, body = null, options = {} ) => {
+        let agent = request(app);
+      
+           agent = request(app).put('/api/1.0/users/' + id);
+      
+            if(options.token){
+              agent.set('Authorization', `Bearer ${options.token}`)
+            }
+      
+            return agent.send(body);
+      }
+
+    it('returns 403 when token is older than 1 week ', async() =>{
+        const savedUser = await addUser();
+
+        const token = 'test-token';
+        const oneWeekAgo = new Date(Date.now() - (7*24*60*60*1000) -1 ) // (7*24*60*60*1000) 7-days 24-hours 60-minutes 60-seconds 1000-miliseconds
+        await Token.create({
+            token: token,
+            userid: savedUser.id,
+            lastUsedAt : oneWeekAgo
+        });
+
+        const validUpdate = { username : 'user1-updated'};
+        const response =  await putUser( savedUser.id, validUpdate, {token : token});
+        expect(response.status).toBe(403);
+    });
+
+    it('refreshes lastUsedAt when unexpired token is used ', async() =>{
+        const savedUser = await addUser();
+
+        const token = 'test-token';
+        const fourDaysAgo = new Date(Date.now() - (4*24*60*60*1000) ) // (7*24*60*60*1000) 7-days 24-hours 60-minutes 60-seconds 1000-miliseconds
+        console.log('fourDaysAgo ' + fourDaysAgo )
+        await Token.create({
+            token: token,
+            userid: savedUser.id,
+            lastUsedAt : fourDaysAgo
+        });
+
+        const validUpdate = { username : 'user1-updated'};
+        const rightBeforeSendingRequest = new Date();
+         await putUser( savedUser.id, validUpdate, {token : token});
+         const tokenInDb = await Token.findOne({ where : { token : token }});
+         
+        expect(tokenInDb.lastUsedAt.getTime()).toBeLessThan(rightBeforeSendingRequest.getTime());
+    });
+
+
+    it('refreshes lastUsedAt when unexpired token is used for unauthenticated endpoint', async() =>{
+        const savedUser = await addUser();
+
+        const token = 'test-token';
+        const fourDaysAgo = new Date(Date.now() - (4*24*60*60*1000)  ) // (7*24*60*60*1000) 7-days 24-hours 60-minutes 60-seconds 1000-miliseconds
+        await Token.create({
+            token: token,
+            userid: savedUser.id,
+            lastUsedAt : fourDaysAgo
+        });
+
+        const rightBeforeSendingRequest = new Date();
+        await request(app).get('/api/1.0/users/5').set('Authorization', `Bearer ${token}`)
+         const tokenInDb = await Token.findOne({ where : { token : token }});
+
+        expect(tokenInDb.lastUsedAt.getTime()).toBeLessThan(rightBeforeSendingRequest.getTime());
+    })
 })
