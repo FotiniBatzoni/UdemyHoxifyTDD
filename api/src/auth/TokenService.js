@@ -3,6 +3,8 @@
 const { randomString } = require('../shared/generator');
 const Token = require('./Token');
 const Sequelize = require('sequelize');
+const ONE_WEEK_IN_MILIS = 7*24*60*60*1000
+
 
 const createToken = async (user) => {
         //return jwt.sign( { id:user.id }, secret, {expiresIn : 10}); //expires in 10 seconds
@@ -20,7 +22,7 @@ const verify = async (token) => {
     //return jwt.verify(token, secret);
   
     
-    const oneWeekAgo = new Date(Date.now() - (7*24*60*60*1000))
+    const oneWeekAgo = new Date(Date.now() - ONE_WEEK_IN_MILIS)
     const tokenInDb = await Token.findOne({ 
         where : { 
             token : token,
@@ -43,15 +45,19 @@ const deleteToken = async (token) =>{
 //     await Token.destroy({ where : { userId : userId }})
 // }
 
-const scheduleCleanup = async() => {
-    const oneWeekAgo = new Date(Date.now() - (7*24*60*60*1000));
-    await Token.destroy({
-        where: {
-            lastUsedAt: {
-                [Sequelize.Op.lt] : oneWeekAgo
+const scheduleCleanup = () => {
+    setInterval ( async () =>
+    {
+        const oneWeekAgo = new Date(Date.now() - ONE_WEEK_IN_MILIS);
+        await Token.destroy({
+            where: {
+                lastUsedAt: {
+                    [Sequelize.Op.lt] : oneWeekAgo
+                }
             }
-        }
-    })
+        })
+    }, (60*60*1000));
+
 }
 
 module.exports = {
