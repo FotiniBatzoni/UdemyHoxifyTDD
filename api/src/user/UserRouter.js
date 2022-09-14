@@ -4,10 +4,12 @@ const UserService = require('./UserService');
 const { check, validationResult } = require('express-validator');
 const ValidationException = require('../error/ValidationException');
 const pagination = require('../middleware/pagination');
-const UserNotFoundException = require('./UserNotFoundException');
+//const UserNotFoundException = require('./UserNotFoundException');
 const ForbiddenException = require('../error/ForbiddenException');
 //const basicAuthentication = require('../middleware/basicAuthentication');
 const tokenAuthentication = require('../middleware/tokenAuthentication');
+
+
 
 // const validateUsername = (req, res, next) => {
 //   const user = req.body;
@@ -130,6 +132,7 @@ router.delete('/api/1.0/users/:id', tokenAuthentication, async (req,res,next) =>
     return next(new ForbiddenException('unauthorised_user_delete'));
   }
   await UserService.deleteUser(req.params.id);
+
   return res.send();
 })
 

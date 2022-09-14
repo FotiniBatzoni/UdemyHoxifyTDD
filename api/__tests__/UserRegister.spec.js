@@ -45,7 +45,7 @@ beforeAll(async () => {
 //Cleaning the user table before each test
 beforeEach( async () => {
   simulateSmtpFailure = false;
-  await User.destroy({ truncate: true });
+  await User.destroy({ truncate : { cascade : true} });
 });
 
 const validUser = {

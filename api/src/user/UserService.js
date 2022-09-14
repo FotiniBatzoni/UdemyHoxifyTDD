@@ -7,8 +7,8 @@ const EmailException = require('../email/EmailException');
 // const sendEmail = require('../config/emailTransporter');
 const InvalidTokenException = require('./InvalidTokenException');
 const NotFoundException = require('./UserNotFoundException');
-const { parseConnectionUrl } = require('nodemailer/lib/shared');
-const { randomString } =require('../shared/generator')
+const { randomString } =require('../shared/generator');
+
 
 
 const save = async (body) => {
@@ -97,7 +97,8 @@ const updateUser = async (id, updatedBody) => {
 };
 
 const deleteUser = async(id) =>{
-  await User.destroy({ where : { id: id}})
+  await User.destroy({ where : { id: id}});
+ 
 }
 
 
