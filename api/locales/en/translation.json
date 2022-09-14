@@ -15,6 +15,7 @@
     "user_not_found":"User not found",
     "authentication_failure":"Incorrect credentials",
     "inactive_authentication_failure":"Account is inactive",
-    "unauthorised_user_update":"Unauthorised user"
+    "unauthorised_user_update":"Unauthorised user",
+    "unauthorised_user_delete":"You are unauthorized to delete user"
     
 }

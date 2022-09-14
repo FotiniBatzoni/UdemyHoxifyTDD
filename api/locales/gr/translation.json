@@ -16,5 +16,6 @@
     "user_not_found":"Δεν βρέθηκε ο χρήστης",
     "authentication_failure":"Λανθασμένα στοιχεία σύνδεσης",
     "inactive_authentication_failure":"Ο λογαριασμός είναι ανενεργός",
-    "unauthorised_user_update":"Ο χρήστης δεν έχει δικαιωδοσία"
+    "unauthorised_user_update":"Ο χρήστης δεν έχει δικαιωδοσία",
+    "unauthorised_user_delete":"Ο χρήστης δεν έχει δικαιωδοσία να διαγράψει τον χρήστη"
 }
