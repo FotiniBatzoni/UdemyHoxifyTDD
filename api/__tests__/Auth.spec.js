@@ -214,7 +214,7 @@ describe('Token Expiration' , () => {
 
         const token = 'test-token';
         const fourDaysAgo = new Date(Date.now() - (4*24*60*60*1000) ) // (7*24*60*60*1000) 7-days 24-hours 60-minutes 60-seconds 1000-miliseconds
-        console.log('fourDaysAgo ' + fourDaysAgo )
+      
         await Token.create({
             token: token,
             userid: savedUser.id,
