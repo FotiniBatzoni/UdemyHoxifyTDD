@@ -81,4 +81,11 @@ describe('Password Reset Request', () =>{
             const response = await postPasswordReset(user.email, {language:language});
             expect(response.body.message).toBe(message);
           });
+
+          it('creates passwordResetToken when a password reset request is sent for known email', async () =>{
+            const user = await addUser();
+            await postPasswordReset(user.email);
+            const userinDb = await User.findOne({ where : { email: user.email }});
+            expect(userinDb.passwordResetToken).toBeTruthy();
+          })
 })

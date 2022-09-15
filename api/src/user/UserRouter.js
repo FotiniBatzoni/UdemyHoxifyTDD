@@ -6,7 +6,7 @@ const ValidationException = require('../error/ValidationException');
 const pagination = require('../middleware/pagination');
 //const UserNotFoundException = require('./UserNotFoundException');
 const ForbiddenException = require('../error/ForbiddenException');
-const NotFoundException = require('../error/NotFoundException');
+//const NotFoundException = require('../error/NotFoundException');
 //const basicAuthentication = require('../middleware/basicAuthentication');
 //const tokenAuthentication = require('../middleware/tokenAuthentication');
 
@@ -143,11 +143,12 @@ router.post('/api/1.0/password-reset', check('email').isEmail().withMessage('ema
   if(!errors.isEmpty()){
     return next( new ValidationException(errors.array()))
   }
-  const user = await UserService.findByEmail(req.body.email)
-  if(user){
+  try{
+    await UserService.passwordResetRequest(req.body.email);
     return res.send({ message: req.t('password_reset_request_success')});
+  }catch(err){
+    next(err);
   }
-  return next( new NotFoundException('email_not_inuse'));
 })
 
 module.exports = router;

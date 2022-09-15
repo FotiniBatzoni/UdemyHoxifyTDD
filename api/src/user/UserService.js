@@ -101,6 +101,15 @@ const deleteUser = async(id) =>{
  
 }
 
+const passwordResetRequest = async (email) =>{
+  const user = await findByEmail(email)
+  if(!user){
+   throw new NotFoundException('email_not_inuse');
+  }
+  user.passwordResetToken = randomString(16);
+  await user.save();
+}
+
 
 module.exports = { 
   save, 
@@ -109,5 +118,6 @@ module.exports = {
   getUsers, 
   getUser, 
   updateUser,
-  deleteUser
+  deleteUser,
+  passwordResetRequest
 };
