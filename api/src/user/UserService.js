@@ -6,7 +6,7 @@ const sequelize = require('../config/database');
 const EmailException = require('../email/EmailException');
 // const sendEmail = require('../config/emailTransporter');
 const InvalidTokenException = require('./InvalidTokenException');
-const NotFoundException = require('./UserNotFoundException');
+const NotFoundException = require('../error/NotFoundException')
 const { randomString } =require('../shared/generator');
 
 
