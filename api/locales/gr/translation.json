@@ -18,5 +18,6 @@
     "inactive_authentication_failure":"Ο λογαριασμός είναι ανενεργός",
     "unauthorised_user_update":"Ο χρήστης δεν έχει δικαιωδοσία",
     "unauthorised_user_delete":"Ο χρήστης δεν έχει δικαιωδοσία να διαγράψει τον χρήστη",
-    "email_not_inuse":"Δεν βρέθηκε το email"
+    "email_not_inuse":"Δεν βρέθηκε το email",
+    "password_reset_request_success": "Ελέξτε το email σας"
 }

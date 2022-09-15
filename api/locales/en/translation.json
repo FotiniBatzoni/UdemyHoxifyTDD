@@ -17,6 +17,7 @@
     "inactive_authentication_failure":"Account is inactive",
     "unauthorised_user_update":"Unauthorised user",
     "unauthorised_user_delete":"You are unauthorized to delete user",
-    "email_not_inuse":"Email not found"
+    "email_not_inuse":"Email not found",
+    "password_reset_request_success": "Check your email for reseting the password"
     
 }
