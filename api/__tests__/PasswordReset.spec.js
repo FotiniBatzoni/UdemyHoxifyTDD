@@ -1,9 +1,33 @@
 const request = require('supertest');
 const app = require('../src/app');
-
+const User = require('../src/user/User');
+const sequelize = require('../src/config/database');
+const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
-const { options } = require('../src/app');
+
+beforeAll( async () => {
+    await sequelize.sync();
+});
+
+beforeEach( async () => {
+  await User.destroy({ truncate : { cascade : true} });
+});
+
+const activeUser =  {
+    username : 'user1',
+    email : 'user1@mail.com',
+    password : 'P4ssword',
+    inactive : false
+};
+
+const addUser = async (user = {...activeUser}) =>{
+
+    const hash = await bcrypt.hash(user.password,10);
+    user.password = hash;
+    return await User.create(user);
+}
+
 
 const postPasswordReset = (email = 'user1@mail.com', options ={}) =>{
     const agent =  request(app).post('/api/1.0/password-reset');
@@ -41,4 +65,10 @@ describe('Password Reset Request', () =>{
           expect(response.body.validationErrors.email).toBe(message);
           expect(response.status).toBe(400);
         });
+
+        it('returns 200 ok when a password reset request is sent for known email' , async () =>{
+            const user = await addUser();
+            const response = await postPasswordReset(user.email);
+            expect(response.status).toBe(200);
+        })
 })

@@ -138,12 +138,16 @@ router.delete('/api/1.0/users/:id', async (req,res,next) => {
 });
 
 
-router.post('/api/1.0/password-reset', check('email').isEmail().withMessage('email_invalid'), (req) =>{
+router.post('/api/1.0/password-reset', check('email').isEmail().withMessage('email_invalid'), async (req,res,next) =>{
   const errors = validationResult(req);
   if(!errors.isEmpty()){
-    throw new ValidationException(errors.array())
+    return next( new ValidationException(errors.array()))
   }
-  throw new NotFoundException('email_not_inuse');
+  const user = await UserService.findByEmail(req.body.email)
+  if(user){
+    return res.send();
+  }
+  return next( new NotFoundException('email_not_inuse'));
 })
 
 module.exports = router;
