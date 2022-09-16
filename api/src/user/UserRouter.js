@@ -121,9 +121,9 @@ router.put('/api/1.0/users/:id',  async (req,res,next) => {
     return next(new ForbiddenException('unauthorised_user_update'));
   }
 
-  await UserService.updateUser(req.params.id, req.body);
+  const user = await UserService.updateUser(req.params.id, req.body);
 
-  return res.send();
+  return res.send(user);
 
 });
 
