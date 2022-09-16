@@ -196,5 +196,54 @@ describe('Password Update', () =>{
         expect(response.body.path).toBe('/api/1.0/user/password');
         expect(response.body.timestamp).toBeGreaterThan(nowInMillis);
         expect(response.body.message).toBe(message);
-      });
+    });
+
+    it('returns 403 when password update request with invalid password pattern and the reset token is invalid', async () =>{
+        const response = await putPasswordUpdate({
+            password: 'not-valid',
+            passwordResetToken : 'abcd'
+        })
+        expect(response.status).toBe(403);
+    });
+
+    it('returns 400 when trying to update with invalid password and the reset token is valid ', async () =>{
+        const user = await addUser();
+        user.passwordResetToken = 'test-token',
+        await user.save();
+        const response = await putPasswordUpdate({
+            password: 'not-valid',
+            passwordResetToken : 'test-token'
+        })
+        expect(response.status).toBe(400);
+
+    });
+
+    it.each`
+    language  | value              | message
+    ${'en'}   | ${null}            | ${en.password_null}
+    ${'en'}   | ${'P4ss'}          | ${en.password_size}
+    ${'en'}   | ${'alllowercase'}  | ${en.password_pattern}
+    ${'en'}   | ${'ALLUPPERCASE'}  | ${en.password_pattern}
+    ${'en'}   | ${'125899'}        | ${en.password_pattern}
+    ${'en'}   | ${'lower1234'}     | ${en.password_pattern}
+    ${'en'}   | ${'UPPER125899'}   | ${en.password_pattern}
+    ${'gr'}   | ${'lowerUPPER'}    | ${gr.password_pattern}
+    ${'gr'}   | ${null}            | ${gr.password_null}
+    ${'gr'}   | ${'P4ss'}          | ${gr.password_size}
+    ${'gr'}   | ${'alllowercase'}  | ${gr.password_pattern}
+    ${'gr'}   | ${'ALLUPPERCASE'}  | ${gr.password_pattern}
+    ${'gr'}   | ${'125899'}        | ${gr.password_pattern}
+    ${'gr'}   | ${'lower1234'}     | ${gr.password_pattern}
+    ${'gr'}   | ${'UPPER125899'}   | ${gr.password_pattern}
+    ${'gr'}   | ${'lowerUPPER'}    | ${gr.password_pattern}
+  `('returns password validation error $message when language is set to $language and the value is $value', async ({ language, message, value }) => {
+    const user = await addUser();
+    user.passwordResetToken = 'test-token',
+    await user.save();
+    const response = await putPasswordUpdate({
+        password: value,
+        passwordResetToken : 'test-token'
+    },{ language: language})
+    expect(response.body.validationErrors.password).toBe(message);
+  });
 })
