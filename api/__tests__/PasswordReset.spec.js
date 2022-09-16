@@ -2,17 +2,63 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
+const SMTPServer = require('smtp-server').SMTPServer;
 const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
+const config = require('config');
 
-beforeAll( async () => {
+let lastMail, server;
+let simulateSmtpFailure = false;
+
+
+beforeAll(async () => {
+    server = new SMTPServer({
+      authOptional: true,
+      onData(stream, session, callback) {
+        let mailBody;
+        stream.on('data', (data) => {
+          mailBody += data.toString();
+          
+        });
+        stream.on('end', () => {
+          if (simulateSmtpFailure) {
+            const err = new Error('Invalid mailbox');
+            err.responseCode = 553;
+            return callback(err);
+          }
+          lastMail = mailBody;
+         
+          callback();
+        });
+      },
+    });
+  
+    await server.listen(config.mail.port, 'localhost');
+  
     await sequelize.sync();
-});
+  
+    jest.setTimeout(20000);
+  });
+  
+  //Cleaning the user table before each test
+  beforeEach( async () => {
+    simulateSmtpFailure = false;
+    await User.destroy({ truncate: true });
+  });
+  
+  const validUser = {
+    username: 'user1',
+    email: 'user1@mail.com',
+    password: 'P4ssword',
+  };
+  
+  afterAll(async () => {
+    await server.close();
+    jest.setTimeout(5000);
+  });
 
-beforeEach( async () => {
-  await User.destroy({ truncate : { cascade : true} });
-});
+
 
 const activeUser =  {
     username : 'user1',
@@ -87,5 +133,34 @@ describe('Password Reset Request', () =>{
             await postPasswordReset(user.email);
             const userinDb = await User.findOne({ where : { email: user.email }});
             expect(userinDb.passwordResetToken).toBeTruthy();
-          })
+          });
+
+          it('sends a password reset email with passwordResetToken', async () =>{
+            const user = await addUser();
+            await postPasswordReset(user.email);
+            const userinDb = await User.findOne({ where : { email: user.email }});
+            const passwordResetToken = userinDb.passwordResetToken;
+            expect(lastMail).toContain('user1@mail.com')
+            expect(lastMail).toContain(passwordResetToken);
+            
+          });
+
+          it('returns 502 Bad Gateway when sending email fails ', async () =>{
+            simulateSmtpFailure = true;
+            const user = await addUser();
+            const response  = await postPasswordReset(user.email);
+            expect (response.status).toBe(502);
+          });
+
+          it.each`
+          language | message
+          ${'gr'}    | ${gr.email_failure} 
+          ${'en'}    | ${en.email_failure} 
+          `('returns  $message when  language is $language after email failure', async ({ language, message }) => {
+              simulateSmtpFailure = true;
+            const user = await addUser();
+              const response = await postPasswordReset(user.email, {language:language});
+              expect(response.body.message).toBe(message);
+            });
+  
 })

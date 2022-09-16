@@ -108,6 +108,12 @@ const passwordResetRequest = async (email) =>{
   }
   user.passwordResetToken = randomString(16);
   await user.save();
+  try{
+    await EmailService.sendPasswordReset(email, user.passwordResetToken)
+  }catch(err){
+    throw new EmailException();
+  }
+  
 }
 
 

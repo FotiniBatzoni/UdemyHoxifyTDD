@@ -2,13 +2,13 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
-const nodemailerStub = require('nodemailer-stub');
+//const nodemailerStub = require('nodemailer-stub');
 const SMTPServer = require('smtp-server').SMTPServer;
-const EmailService = require('../src/email/EmailService');
-const c = require('config');
-const { response } = require('../src/app');
+//const EmailService = require('../src/email/EmailService');
+//const { response } = require('../src/app');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
+const config = require('config');
 
 let lastMail, server;
 let simulateSmtpFailure = false;
@@ -23,7 +23,6 @@ beforeAll(async () => {
         mailBody += data.toString();
         
       });
-      console.log('mailbody ' +  mailBody)
       stream.on('end', () => {
         if (simulateSmtpFailure) {
           const err = new Error('Invalid mailbox');
@@ -34,13 +33,10 @@ beforeAll(async () => {
        
         callback();
       });
-      
-      console.log('simulateSmtpFailure ' + simulateSmtpFailure)
-      console.log('lastMail ' + lastMail)
     },
   });
 
-  await server.listen(8587, 'localhost');
+  await server.listen(config.mail.port, 'localhost');
 
   await sequelize.sync();
 
@@ -348,7 +344,7 @@ describe('User Registration', () => {
   });
 
   it('returns Validation Failure in error response body if validation fails', async ()  => {
-    await postUser(
+   const response = await postUser(
       {
         username: null,
         email: validUser.email,
@@ -430,7 +426,7 @@ describe('Internationalization', () => {
 
     //with server
     simulateSmtpFailure = true;
-    const response = await postUser({ ...validUser }, { language: 'tr' });
+    const response = await postUser({ ...validUser }, { language: 'gr' });
     expect(response.body.message).toBe(gr.email_failure);
   });
 

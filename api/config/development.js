@@ -1,4 +1,4 @@
-{
+module.exports = {
     "database":{
         "database":"hoaxify",
         "username":"my-db-user",
