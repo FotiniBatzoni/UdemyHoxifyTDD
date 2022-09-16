@@ -7,7 +7,6 @@ const SMTPServer = require('smtp-server').SMTPServer;
 const EmailService = require('../src/email/EmailService');
 const c = require('config');
 const { response } = require('../src/app');
-const { describe } = require('../src/user/User');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 
@@ -22,7 +21,9 @@ beforeAll(async () => {
       let mailBody;
       stream.on('data', (data) => {
         mailBody += data.toString();
+        
       });
+      console.log('mailbody ' +  mailBody)
       stream.on('end', () => {
         if (simulateSmtpFailure) {
           const err = new Error('Invalid mailbox');
@@ -30,8 +31,12 @@ beforeAll(async () => {
           return callback(err);
         }
         lastMail = mailBody;
+       
         callback();
       });
+      
+      console.log('simulateSmtpFailure ' + simulateSmtpFailure)
+      console.log('lastMail ' + lastMail)
     },
   });
 
@@ -45,7 +50,7 @@ beforeAll(async () => {
 //Cleaning the user table before each test
 beforeEach( async () => {
   simulateSmtpFailure = false;
-  await User.destroy({ truncate : { cascade : true} });
+  await User.destroy({ truncate: true });
 });
 
 const validUser = {
@@ -285,6 +290,11 @@ describe('User Registration', () => {
     //with SMTPServer
     const users = await User.findAll();
     const savedUser = users[0];
+
+    console.log(savedUser.email);
+    
+    console.log(lastMail);
+
     expect(lastMail).toContain('user1@mail.com');
     expect(lastMail).toContain(savedUser.activationToken);
   });
@@ -409,7 +419,7 @@ describe('Internationalization', () => {
     expect(response.body.message).toBe(gr.user_create_success);
   });
 
-  it(`returns ${email_failure} message when sending email fails and language is set as greek`, async () => {
+  it(`returns ${gr.email_failure} message when sending email fails and language is set as greek`, async () => {
        //with mock
     // const mockSendAccountActivation = jest
     //   .spyOn(EmailService, 'sendAccountActivation')
@@ -424,7 +434,7 @@ describe('Internationalization', () => {
     expect(response.body.message).toBe(gr.email_failure);
   });
 
-  it(`returns ${validation_failure} message in error response body when validation fails`, async () => {
+  it(`returns ${gr.validation_failure} message in error response body when validation fails`, async () => {
     const response = await postUser(
       {
         username: null,
