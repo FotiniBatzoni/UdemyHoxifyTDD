@@ -8,6 +8,7 @@ const EmailException = require('../email/EmailException');
 const InvalidTokenException = require('./InvalidTokenException');
 const NotFoundException = require('../error/NotFoundException')
 const { randomString } =require('../shared/generator');
+const TokenService = require('../auth/TokenService');
 
 
 
@@ -121,7 +122,11 @@ const updatePassword = async (updateRequest) =>{
 
   const hash = await bcrypt.hash(updateRequest.password, 10);
   user.password = hash;
+  user.passwordResetToken=null;
+  user.activationToken = null;
+  user.inactive = false;
   await user.save();
+  await TokenService.clearTokens(user.id)
 };
 
 
