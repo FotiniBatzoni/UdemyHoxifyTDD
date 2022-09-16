@@ -116,6 +116,18 @@ const passwordResetRequest = async (email) =>{
   
 }
 
+const updatePassword = async (updateRequest) =>{
+  const user = await findByPasswordResetToken(updateRequest.passwordResetToken)
+
+  const hash = await bcrypt.hash(updateRequest.password, 10);
+  user.password = hash;
+  await user.save();
+};
+
+
+const findByPasswordResetToken = (token) =>{
+ return  User.findOne({ where : { passwordResetToken:token}});
+}
 
 module.exports = { 
   save, 
@@ -125,5 +137,7 @@ module.exports = {
   getUser, 
   updateUser,
   deleteUser,
-  passwordResetRequest
+  passwordResetRequest,
+  updatePassword,
+  findByPasswordResetToken
 };

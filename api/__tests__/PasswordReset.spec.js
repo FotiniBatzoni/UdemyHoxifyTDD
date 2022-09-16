@@ -246,4 +246,27 @@ describe('Password Update', () =>{
     },{ language: language})
     expect(response.body.validationErrors.password).toBe(message);
   });
+
+  it('returns 200 valid password is sent with valid reset token', async () =>{
+    const user = await addUser();
+    user.passwordResetToken = 'test-token',
+    await user.save();
+    const response = await putPasswordUpdate({
+        password: 'N3w-password',
+        passwordResetToken : 'test-token'
+    })
+    expect(response.status).toBe(200);
+  });
+
+  it('updates the password in database when the request is valid ', async () =>{
+    const user = await addUser();
+    user.passwordResetToken = 'test-token',
+    await user.save();
+    await putPasswordUpdate({
+        password: 'N3w-password',
+        passwordResetToken : 'test-token'
+    })
+    const userInDb = await User.findOne({ where : { email : 'user1@mail.com' }});
+    expect(userInDb.password).not.toEqual(user.password);
+  });
 })

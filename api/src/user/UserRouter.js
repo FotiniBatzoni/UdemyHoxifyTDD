@@ -9,7 +9,7 @@ const ForbiddenException = require('../error/ForbiddenException');
 //const NotFoundException = require('../error/NotFoundException');
 //const basicAuthentication = require('../middleware/basicAuthentication');
 //const tokenAuthentication = require('../middleware/tokenAuthentication');
-const User = require('./User');
+
 
 
 
@@ -153,9 +153,7 @@ router.post('/api/1.0/user/password', check('email').isEmail().withMessage('emai
 });
 
 const passwordResetTokenValidator = async(req,res,next) =>{
-  const user = await User.findOne({
-    where: { passwordResetToken : req.body.passwordResetToken}
-  });
+  const user = await UserService.findByPasswordResetToken(req.body.passwordResetToken)
   if(!user){
    return next(new ForbiddenException('unauthorized_password_reset')) ;
   }
@@ -177,6 +175,8 @@ check('password')
   if (!errors.isEmpty()) {
     return next(new ValidationException(errors.array()));
   }
+  await UserService.updatePassword(req.body);
+  res.send();
 })
 
 module.exports = router;
