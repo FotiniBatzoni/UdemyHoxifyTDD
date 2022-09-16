@@ -81,6 +81,14 @@ const postPasswordReset = (email = 'user1@mail.com', options ={}) =>{
         agent.set('Accept-Language', options.language)
     }
     return agent.send( { email : email });
+};
+
+const putPasswordUpdate = ( body = {} , options = {} ) =>{
+    const agent = request(app).put('/api/1.0/user/password');
+    if(options.language){
+        agent.set('Accept-Language', options.language)
+    }
+    return agent.send(body)
 }
 
 describe('Password Reset Request', () =>{
@@ -163,4 +171,30 @@ describe('Password Reset Request', () =>{
               expect(response.body.message).toBe(message);
             });
   
+});
+
+describe('Password Update', () =>{
+
+    it('returns 403 when password update request does not have the valid password reset token', async () =>{
+        const response = await putPasswordUpdate({
+            password: 'P4ssword',
+            passwordResetToken : 'abcd'
+        })
+        expect(response.status).toBe(403);
+    });
+
+    it.each`
+    language | message
+    ${'gr'}    | ${gr.unauthorized_password_reset} 
+    ${'en'}    | ${en.unauthorized_password_reset} 
+    `('returns error body $message when language is $language after trying to update with invalid token', async ({ language, message }) => {
+        const nowInMillis = new Date().getTime();
+        const response = await await putPasswordUpdate({
+            password: 'P4ssword',
+            passwordResetToken : 'abcd'
+        }, { language })
+        expect(response.body.path).toBe('/api/1.0/user/password');
+        expect(response.body.timestamp).toBeGreaterThan(nowInMillis);
+        expect(response.body.message).toBe(message);
+      });
 })

@@ -18,6 +18,7 @@
     "unauthorised_user_update":"Unauthorised user",
     "unauthorised_user_delete":"You are unauthorized to delete user",
     "email_not_inuse":"Email not found",
-    "password_reset_request_success": "Check your email for reseting the password"
+    "password_reset_request_success": "Check your email for reseting the password",
+    "unauthorized_password_reset": "You are not authorized to update your password"
     
 }

@@ -149,6 +149,10 @@ router.post('/api/1.0/user/password', check('email').isEmail().withMessage('emai
   }catch(err){
     next(err);
   }
+});
+
+router.put('/api/1.0/user/password', (req,res) =>{
+  throw new ForbiddenException('unauthorized_password_reset')
 })
 
 module.exports = router;
