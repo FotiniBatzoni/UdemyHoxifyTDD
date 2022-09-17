@@ -15,5 +15,7 @@ module.exports = {
                 "user": "f.batzoni@gmail.com",
                 "pass": "tddcdklrokotihqg"
               }
-            }
+    },
+    uploadDir : 'uploads-dev',
+    profileDir : 'profile'
 }

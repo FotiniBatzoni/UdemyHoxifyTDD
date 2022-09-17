@@ -14,7 +14,9 @@
         "tls": {
           "rejectUnauthorized": false
         }
-      }
+      },
+  uploadDir : 'uploads-test',
+  profileDir : 'profile'
 }
   
  
