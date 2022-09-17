@@ -9,6 +9,7 @@ const InvalidTokenException = require('./InvalidTokenException');
 const NotFoundException = require('../error/NotFoundException')
 const { randomString } =require('../shared/generator');
 const TokenService = require('../auth/TokenService');
+const FileService = require('../file/FileService');
 
 
 
@@ -93,7 +94,8 @@ const getUser = async (id) => {
 const updateUser = async (id, updatedBody) => {
   const user = await User.findOne({ where : { id : id}});
   user.username = updatedBody.username;
-  user.image = updatedBody.image;
+  const filename = await FileService.saveProfileImage(updatedBody.image);
+  user.image = filename;
 
   await user.save();
   return {
