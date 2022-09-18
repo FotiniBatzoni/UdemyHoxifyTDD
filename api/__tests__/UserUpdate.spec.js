@@ -22,13 +22,14 @@ beforeEach( async () => {
   await User.destroy({ truncate : { cascade : true} });
 });
 
-afterAll (() =>{
+//No need for that because it runs posttest (test-cleanup)
+// afterAll (() =>{
 
-  const files = fs.readdirSync(profileDirectory)
-  for (const file of files ){
-    fs.unlinkSync( path.join(profileDirectory, file))
-  }
-} )
+//   const files = fs.readdirSync(profileDirectory)
+//   for (const file of files ){
+//     fs.unlinkSync( path.join(profileDirectory, file))
+//   }
+// } )
 
 const activeUser =  {
     username : 'user1',
