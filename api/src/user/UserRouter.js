@@ -116,11 +116,21 @@ router.get('/api/1.0/users/:id', async (req, res, next) => {
 
 router.put('/api/1.0/users/:id',  
 check('username')
-.notEmpty()
-.withMessage('username_null')
-.bail() // it's something like stop
-.isLength({ min: 4, max: 32 })
-.withMessage('username_size'),  
+  .notEmpty()
+  .withMessage('username_null')
+  .bail() // it's something like stop
+  .isLength({ min: 4, max: 32 })
+  .withMessage('username_size'), 
+check('image').custom(( imageAsbase64String ) => {
+  if(!imageAsbase64String){
+    return true;
+  }
+  const buffer = Buffer.from( imageAsbase64String, 'base64' );
+  if(buffer.length > 2*1024*1024 ){
+    throw new Error()
+  }
+  return true;
+}),
 async (req,res,next) => {
 
   const authedicatedUser = req.authenticatedUser;
