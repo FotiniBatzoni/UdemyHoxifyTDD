@@ -192,5 +192,20 @@ describe('User Update', () => {
         const profileImagePath = path.join(profileDirectory, inDBUser.image );
         expect(fs.existsSync(profileImagePath)).toBe(true);
       }, 15000);
+
+
+      it('removes the old image after user upload new one', async () =>{
+        const fileInBase64 = readFileAsBase64();
+        const savedUser = await addUser();
+        const validUpdate = { username: 'user1-updated', image : fileInBase64};
+        const response = await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+
+        const firstImage = response.body.image;
+
+        await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+     
+        const profileImagePath = path.join(profileDirectory, firstImage );
+        expect(fs.existsSync(profileImagePath)).toBe(false);
+      }, 15000);
    
  })

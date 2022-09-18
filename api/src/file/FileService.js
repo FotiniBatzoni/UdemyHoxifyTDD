@@ -23,11 +23,17 @@ const saveProfileImage = async (base64File) =>{
     //fs.writeFileSync(filePath, base64File, { encoding : 'base64 '});
     await fs.promises.writeFile( filePath, base64File, 'base64')
     return filename;
+};
 
+
+const deleteProfileImage = async (filename) =>{
+    const filePath = path.join(profileFolder, filename);
+    await fs.promises.unlink(filePath)
 }
 
 
 module.exports = {
     createFolders,
-    saveProfileImage
+    saveProfileImage,
+    deleteProfileImage
 }
