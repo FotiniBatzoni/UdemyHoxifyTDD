@@ -127,7 +127,8 @@ check('image').custom(( imageAsbase64String ) => {
   }
   const buffer = Buffer.from( imageAsbase64String, 'base64' );
   if(buffer.length > 2*1024*1024 ){
-    throw new Error()
+    
+    throw new Error('profile_image_size')
   }
   return true;
 }),
