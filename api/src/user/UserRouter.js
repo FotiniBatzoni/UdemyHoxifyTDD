@@ -114,11 +114,24 @@ router.get('/api/1.0/users/:id', async (req, res, next) => {
 });
 
 
-router.put('/api/1.0/users/:id',  async (req,res,next) => {
+router.put('/api/1.0/users/:id',  
+check('username')
+.notEmpty()
+.withMessage('username_null')
+.bail() // it's something like stop
+.isLength({ min: 4, max: 32 })
+.withMessage('username_size'),  
+async (req,res,next) => {
+
   const authedicatedUser = req.authenticatedUser;
 
   if(!authedicatedUser || authedicatedUser.id != req.params.id ){
     return next(new ForbiddenException('unauthorised_user_update'));
+  }
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new ValidationException(errors.array()));
   }
 
   const user = await UserService.updateUser(req.params.id, req.body);
