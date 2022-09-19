@@ -234,7 +234,7 @@ describe('User Update', () => {
 
    it('returns 200 ok  when image size is exactly 2mb', async () => {
     const testPng = readFileAsBase64();
-    const pngByte = Buffer.from(testPng, 'base64').length;
+    const pngByte = Buffer.from(`${testPng}`, 'base64').length;
     const twoMB = 1024 * 1024 *2;
     const filling = 'a'.repeat(twoMB - pngByte) // 2MB  'a' = 1kb*1024*1024*2
     const fillBase64 = Buffer.from(filling).toString('base64');
@@ -308,6 +308,28 @@ describe('User Update', () => {
   });
   expect(response.status).toBe(status);
  })
+
+ it.each`
+ file                 |language          | message
+ ${'test-gif.gif'}    | ${'gr'}            | ${gr.unsupported_image_file}
+ ${'test-gif.gif'}    | ${'en'}            | ${en.unsupported_image_file}
+ ${'test-pdf.pdf'}    | ${'gr'}            | ${gr.unsupported_image_file}
+ ${'test-pdf.pdf'}    | ${'en'}            | ${en.unsupported_image_file}
+ ${'test-txt.txt'}    | ${'gr'}            | ${gr.unsupported_image_file}
+ ${'test-txt.txt'}    | ${'en'}            | ${en.unsupported_image_file}
+ `(
+  'returns $message when uploading $file as image when language is $language',
+  async ({ file, language, message }) => {
+    const fileInBase64 = readFileAsBase64(file);
+    const savedUser = await addUser();
+    const updateBody = { username: 'user1-updated', image: fileInBase64 };
+    const response = await putUser(savedUser.id, updateBody, {
+      auth: { email: savedUser.email, password: 'P4ssword' },
+      language: language,
+    });
+    expect(response.body.validationErrors.image).toBe(message);
+  }
+);
 
 
  })

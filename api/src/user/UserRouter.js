@@ -107,6 +107,22 @@ router.get('/api/1.0/users/:id', async (req, res, next) => {
   }
 });
 
+const isLessThan2MB = (buffer) =>{
+  return buffer.length < 2 * 1024 * 1024
+}
+
+const isSupportedFileType = async (ext) =>{
+  const type = ext;
+  if(!type){
+    return false
+  };
+  if(type === 'png' || type === 'jpg' || type === 'jpeg'){
+    return true
+  };
+  return false;
+  //return !type ? false : type === 'png' || type === 'jpg' || type === 'jpeg
+}
+
 
 router.put('/api/1.0/users/:id',  
 check('username')
@@ -120,15 +136,15 @@ check('image').custom( async ( imageAsbase64String ) => {
     return true;
   }
   const buffer = Buffer.from( imageAsbase64String.base64, 'base64' );
-  if(buffer.length > 2 * 1024 * 1024 ){
-    
+
+  if( !isLessThan2MB(buffer) ){
     throw new Error('profile_image_size')
   }
 
-   const type = imageAsbase64String.ext[1];
-   if(!type || (type !== 'png' && type !== 'jpg' && type !== 'jpeg' )){
-    throw new Error();
-   }
+  const supportedType = await isSupportedFileType(imageAsbase64String.ext[1]);
+  if(!supportedType){
+    throw new Error('unsupported_image_file');
+  }
 
   return true;
 }),
@@ -151,7 +167,6 @@ async (req,res,next) => {
 
   const user = await UserService.updateUser(req.params.id, req.body);
 
-  console.log(user);
   return res.send(user);
 
 });
