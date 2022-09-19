@@ -33,9 +33,27 @@ const deleteProfileImage = async (filename) =>{
     await fs.promises.unlink(filePath)
 }
 
+const isLessThan2MB = (buffer) =>{
+    return buffer.length < 2 * 1024 * 1024
+  }
+  
+  const isSupportedFileType = async (ext) =>{
+    const type = ext;
+    if(!type){
+      return false
+    };
+    if(type === 'png' || type === 'jpg' || type === 'jpeg'){
+      return true
+    };
+    return false;
+    //return !type ? false : type === 'png' || type === 'jpg' || type === 'jpeg
+  }
+  
 
 module.exports = {
     createFolders,
     saveProfileImage,
-    deleteProfileImage
+    deleteProfileImage,
+    isLessThan2MB,
+    isSupportedFileType
 }
