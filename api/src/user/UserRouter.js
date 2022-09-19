@@ -124,6 +124,7 @@ check('image').custom( async ( imageAsbase64String ) => {
   const buffer = Buffer.from( imageAsbase64String.base64, 'base64' );
 
   if( !FileService.isLessThan2MB(buffer) ){
+    console.log('here')
     throw new Error('profile_image_size')
   }
 

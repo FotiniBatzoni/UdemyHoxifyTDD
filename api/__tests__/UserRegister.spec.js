@@ -287,10 +287,6 @@ describe('User Registration', () => {
     const users = await User.findAll();
     const savedUser = users[0];
 
-    console.log(savedUser.email);
-    
-    console.log(lastMail);
-
     expect(lastMail).toContain('user1@mail.com');
     expect(lastMail).toContain(savedUser.activationToken);
   });
