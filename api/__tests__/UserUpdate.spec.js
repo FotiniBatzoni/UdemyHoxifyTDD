@@ -85,9 +85,12 @@ const putUser = async  (id = 5, body = null, options = {} ) => {
     //return agent.send(body);
 };
 
-const readFileAsBase64 = () =>{
-  const filePath = path.join('.', '__tests__', 'resources', 'test-png.png');
-  return fileInBase64 = fs.readFileSync(filePath, { encoding: 'base64'});
+const readFileAsBase64 = ( file = 'test-png.png') =>{
+  const filePath = path.join('.', '__tests__', 'resources', file);
+  return fileInBase64 = {
+    base64 :fs.readFileSync(filePath, { encoding: 'base64'}),
+    ext: file.split('.')
+  }
 }
 
 
@@ -163,12 +166,12 @@ describe('User Update', () => {
 
       it('saves the user image when update contains image as base64', async () =>{
         const fileInBase64 = readFileAsBase64();
+    
         const savedUser = await addUser();
-        const validUpdate = { username: 'user1-updated', image : fileInBase64};
+        const validUpdate = { username: 'user1-updated', image : fileInBase64.base64};
         await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
-
         expect(inDBUser.image).toBeTruthy();
       });
 
@@ -185,11 +188,13 @@ describe('User Update', () => {
       it('saves the user image to upload folder  and stores filename in user when update has image', async () =>{
         const fileInBase64 = readFileAsBase64();
         const savedUser = await addUser();
-        const validUpdate = { username: 'user1-updated', image : fileInBase64};
+        const validUpdate = { username: 'user1-updated', image : fileInBase64.base64};
         await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
-        const profileImagePath = path.join(profileDirectory, inDBUser.image );
+        
+        const profileImagePath = path.join(`${profileDirectory}`, `${inDBUser.image}` );
+  
         expect(fs.existsSync(profileImagePath)).toBe(true);
       }, 15000);
 
@@ -228,10 +233,13 @@ describe('User Update', () => {
    });
 
    it('returns 200 ok  when image size is exactly 2mb', async () => {
-    const fileWithSize2MB = 'a'.repeat(1024 * 1024 * 2) // 2MB  'a' = 1kb*1024*1024*2
-    const base64 = Buffer.from(fileWithSize2MB).toString('base64');
+    const testPng = readFileAsBase64();
+    const pngByte = Buffer.from(testPng, 'base64').length;
+    const twoMB = 1024 * 1024 *2;
+    const filling = 'a'.repeat(twoMB - pngByte) // 2MB  'a' = 1kb*1024*1024*2
+    const fillBase64 = Buffer.from(filling).toString('base64');
     const savedUser = await addUser();
-    const validUpdate = { username: 'updated-user', image: base64};
+    const validUpdate = { username: 'updated-user', image: testPng + fillBase64};
     const response = await putUser(savedUser.id, validUpdate, { 
       auth: { email: 'user1@mail.com' , password : 'P4ssword' }
     });
@@ -260,7 +268,7 @@ describe('User Update', () => {
     await putUser(savedUser.id, { username : 'user1-updated2'}, 
       { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
  
-    const profileImagePath = path.join(profileDirectory, firstImage );
+    const profileImagePath = path.join(`${profileDirectory}`, `${firstImage}` );
     expect(fs.existsSync(profileImagePath)).toBe(true);
 
     const userInDb = await User.findOne({ where: { id: savedUser.id }})
@@ -269,18 +277,37 @@ describe('User Update', () => {
   }, 25000);
 
   it.each`
-  language          | message
-  ${'en'}           | ${en.profile_image_size}
-  ${'gr'}           | ${gr.profile_image_size}
- `('returns $message when file size exceeds 2mb when language is $language', async ({ language, message }) =>{
-    const fileWithExceedingSize2MB = 'a'.repeat(1024 * 1024 * 2) + 'a'
-    const base64 = Buffer.from(fileWithExceedingSize2MB).toString('base64');
+    language          | message
+    ${'en'}           | ${en.profile_image_size}
+    ${'gr'}           | ${gr.profile_image_size}
+  `('returns $message when file size exceeds 2mb when language is $language', async ({ language, message }) =>{
+      const fileWithExceedingSize2MB = 'a'.repeat(1024 * 1024 * 2) + 'a'
+      const base64 = Buffer.from(fileWithExceedingSize2MB).toString('base64');
+      const savedUser = await addUser();
+      const invalidUpdate = { username: 'updated-user', image: base64};
+      const response = await putUser(savedUser.id, invalidUpdate, { 
+        auth: { email: 'user1@mail.com' , password : 'P4ssword' },
+        language,
+    });
+    expect(response.body.validationErrors.image).toBe(message);
+ });
+
+ it.each`
+  file                         | status
+  ${'test-gif.gif'}           | ${400}
+  ${'test-pdf.pdf'}           | ${400}
+  ${'test-txt.txt'}           | ${400}
+  ${'test-png.png'}           | ${200}
+  ${'test-jpg.jpg'}           | ${200}
+ `('returns $status when uploading $file as image', async({ file,status }) =>{
+    const fileInBase64 = readFileAsBase64(file);
     const savedUser = await addUser();
-    const invalidUpdate = { username: 'updated-user', image: base64};
-    const response = await putUser(savedUser.id, invalidUpdate, { 
-      auth: { email: 'user1@mail.com' , password : 'P4ssword' },
-      language,
+    const updateBody = { username: 'user1-updated', image : fileInBase64};
+    const response = await putUser(savedUser.id, updateBody, { 
+      auth: { email: 'user1@mail.com' , password : 'P4ssword' }
   });
-  expect(response.body.validationErrors.image).toBe(message);
+  expect(response.status).toBe(status);
  })
+
+
  })

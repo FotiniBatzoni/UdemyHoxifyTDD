@@ -4,13 +4,7 @@ const UserService = require('./UserService');
 const { check, validationResult } = require('express-validator');
 const ValidationException = require('../error/ValidationException');
 const pagination = require('../middleware/pagination');
-//const UserNotFoundException = require('./UserNotFoundException');
 const ForbiddenException = require('../error/ForbiddenException');
-//const NotFoundException = require('../error/NotFoundException');
-//const basicAuthentication = require('../middleware/basicAuthentication');
-//const tokenAuthentication = require('../middleware/tokenAuthentication');
-
-
 
 
 // const validateUsername = (req, res, next) => {
@@ -121,18 +115,28 @@ check('username')
   .bail() // it's something like stop
   .isLength({ min: 4, max: 32 })
   .withMessage('username_size'), 
-check('image').custom(( imageAsbase64String ) => {
-  if(!imageAsbase64String){
+check('image').custom( async ( imageAsbase64String ) => {
+  if(!imageAsbase64String.base64){
     return true;
   }
-  const buffer = Buffer.from( imageAsbase64String, 'base64' );
-  if(buffer.length > 2*1024*1024 ){
+  const buffer = Buffer.from( imageAsbase64String.base64, 'base64' );
+  if(buffer.length > 2 * 1024 * 1024 ){
     
     throw new Error('profile_image_size')
   }
+
+   const type = imageAsbase64String.ext[1];
+   if(!type || (type !== 'png' && type !== 'jpg' && type !== 'jpeg' )){
+    throw new Error();
+   }
+
   return true;
 }),
 async (req,res,next) => {
+
+  if(req.body.image){
+    req.body.image = req.body.image.base64
+  }
 
   const authedicatedUser = req.authenticatedUser;
 
@@ -147,6 +151,7 @@ async (req,res,next) => {
 
   const user = await UserService.updateUser(req.params.id, req.body);
 
+  console.log(user);
   return res.send(user);
 
 });

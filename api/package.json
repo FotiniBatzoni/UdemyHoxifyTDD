@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon index",
-    "test": "cross-env NODE_ENV=test jest --watch",
+    "test": "cross-env NODE_ENV=test jest --watch ",
     "posttest": "cross-env NODE_ENV=test node test-cleanup",
     "lint": "eslint ."
   },
@@ -16,10 +16,12 @@
     "config": "^3.3.7",
     "express": "^4.18.1",
     "express-validator": "^6.14.2",
+    "file-type": "^18.0.0",
     "i18next": "^21.8.10",
     "i18next-fs-backend": "^1.1.4",
     "i18next-http-middleware": "^3.2.1",
     "jsonwebtoken": "^8.5.1",
+    "node-fetch": "2.0",
     "nodemailer": "^6.7.5",
     "sequelize": "^6.20.1",
     "sqlite3": "^5.0.8",
@@ -68,7 +70,7 @@
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
     ],
-    "testPathIgnorePatterns":[
+    "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/config"
     ],
