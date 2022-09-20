@@ -117,14 +117,17 @@ check('username')
   .bail() // it's something like stop
   .isLength({ min: 4, max: 32 })
   .withMessage('username_size'), 
-check('image').custom( async ( imageAsbase64String ) => {
+check('image')
+.custom( async ( imageAsbase64String ) => {
+
+  console.log(imageAsbase64String)
+
   if(!imageAsbase64String.base64){
     return true;
   }
   const buffer = Buffer.from( imageAsbase64String.base64, 'base64' );
 
   if( !FileService.isLessThan2MB(buffer) ){
-    console.log('here')
     throw new Error('profile_image_size')
   }
 
