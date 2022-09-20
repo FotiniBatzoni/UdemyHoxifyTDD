@@ -29,7 +29,7 @@ User.init(
     },
     image: {
       type: Sequelize.STRING
-    }
+    },
   },
   {
     sequelize,

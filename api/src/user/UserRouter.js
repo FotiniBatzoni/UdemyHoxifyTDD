@@ -120,7 +120,6 @@ check('username')
 check('image')
 .custom( async ( imageAsbase64String ) => {
 
-  console.log(imageAsbase64String)
 
   if(!imageAsbase64String.base64){
     return true;
