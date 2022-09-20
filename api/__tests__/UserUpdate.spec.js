@@ -15,7 +15,9 @@ const profileDirectory = path.join('.', uploadDir, profileDir);
 
 
 beforeAll( async () => {
+  if(process.env.NODE_ENV === 'test'){
     await sequelize.sync();
+}
 });
 
 beforeEach( async () => {

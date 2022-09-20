@@ -10,7 +10,9 @@ const { response } = require('../src/app');
 
 //to call the database before calling the tests
 beforeAll(async () => {
-     await sequelize.sync();
+  if(process.env.NODE_ENV === 'test'){
+    await sequelize.sync();
+}
   });
   
   //Cleaning the user table before each test
