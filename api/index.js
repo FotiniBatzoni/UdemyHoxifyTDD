@@ -33,4 +33,4 @@ sequelize.sync();
 
 TokenService.scheduleCleanup();
 
-app.listen(3200, () => logger.info(`app is running!  version: ` + process.env.npm_package_version));
+app.listen(process.env.PORT || 3200, () => logger.info(`app is running!  version: ` + process.env.npm_package_version));
