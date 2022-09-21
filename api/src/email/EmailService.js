@@ -68,9 +68,8 @@ const sendAccountActivation = async (email, token) => {
             <a href = "http://localhost:3200/#/login?token=${token}>Activate</a>
        </div>`
   });
-   if(process.env.NODE_ENV === 'development'){
      logger.info('url: ' + nodemailer.getTestMessageUrl(info));
-     }
+
 };
 
 const sendPasswordReset = async (email, token) => {
@@ -86,9 +85,9 @@ const sendPasswordReset = async (email, token) => {
                <a href = "http://localhost:3200/#/password-reset?reset=${token}>Reset</a>
           </div>`
      });
-      if(process.env.NODE_ENV === 'development'){
+
         logger.info('url: ' + nodemailer.getTestMessageUrl(info));
-        }
+
    };
    
 
