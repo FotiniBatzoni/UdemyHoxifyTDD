@@ -7,7 +7,8 @@ const { check, validationResult } = require('express-validator');
 const ValidationException = require('../error/ValidationException');
 
 
-router.post('/api/1.0/hoaxes', check('content').isLength({ min: 10 }),
+router.post('/api/1.0/hoaxes', 
+check('content').isLength({ min: 10, max:5000 }).withMessage('hoax_content_size'),
 async (req,res, next) =>{
   if(!req.authenticatedUser){
     return next(new AuthenticationException('unauthorized_hoax_submit')) ;
@@ -15,7 +16,6 @@ async (req,res, next) =>{
 
   const errors = validationResult(req);
   if(!errors.isEmpty()){
-    console.log('errors')
     return next(new ValidationException(errors.array()))
   }
   await HoaxService.save(req.body);

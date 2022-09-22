@@ -24,5 +24,6 @@
     "profile_image_size" : "Η φωτογραφία προφίλ δεν μπορεί να είναι μεγαλυτερή των 2 ΜΒ",
     "unsupported_image_file" :"Μόνο JPEG και PNG  υποστηρίζονται",
     "unauthorized_hoax_submit" : "Δεν έχετε δικαιωδοσία να αναρτήσετε hoax",
-    "hoax_submit_success" : "Το Hoax αποθηκεύτηκε"
+    "hoax_submit_success" : "Το Hoax αποθηκεύτηκε",
+    "hoax_content_size": "Το Hoax πρέπει να είναι τουλάχιστον 10 και το πολύ 5000 χαρακτήρες"
 }
