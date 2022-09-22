@@ -22,5 +22,6 @@
     "password_reset_request_success": "Ελέξτε το email σας",
     "unauthorized_password_reset": "Δεν έχετε δικαιωδοσία να αλλάξετε password",
     "profile_image_size" : "Η φωτογραφία προφίλ δεν μπορεί να είναι μεγαλυτερή των 2 ΜΒ",
-    "unsupported_image_file" :"Μόνο JPEG και PNG  υποστηρίζονται"
+    "unsupported_image_file" :"Μόνο JPEG και PNG  υποστηρίζονται",
+    "unauthorized_hoax_submit" : "Δεν έχετε δικαιωδοσία να αναρτήσετε hoax"
 }
