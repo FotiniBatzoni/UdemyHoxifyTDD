@@ -2,14 +2,61 @@ const request = require('supertest');
 const app = require('../src/app');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
+const User = require('../src/user/User');
+const sequelize = require('../src/config/database');
+const bcrypt  = require('bcrypt');
 
-const postHoax = (body,options ={} ) =>{
-   const agent =  request(app).post('/api/1.0/hoaxes');
-   if(options.language){
-    agent.set('Accept-Language', options.language)
-   }
-   return agent.send(body);
-}
+
+beforeAll( async () => {
+    if(process.env.NODE_ENV === 'test'){
+      await sequelize.sync();
+  }
+  });
+
+  beforeEach( async () => {
+    await User.destroy({ truncate : { cascade : true} });
+  });
+  
+  const activeUser =  {
+    username : 'user1',
+    email : 'user1@mail.com',
+    password : 'P4ssword',
+    inactive : false
+};
+
+  const addUser = async (user = {...activeUser}) =>{
+
+    const hash = await bcrypt.hash(user.password,10);
+    user.password = hash;
+    return await User.create(user);
+};
+
+
+const postHoax = async (body = null,options ={} ) =>{
+    let agent = request(app);
+    let token;
+        if(options.auth){
+          const response = await agent.post('/api/1.0/auth').send(options.auth);
+          token = response.body.token;
+  
+        }
+  
+       agent = request(app).post('/api/1.0/hoaxes');
+        if (options.language) {
+            agent.set('Accept-Language', options.language)
+        }
+  
+        if(token){
+          agent.set('Authorization', `Bearer ${token}`)
+        }
+  
+        if(options.token){
+          agent.set('Authorization', `Bearer ${options.token}`)
+        }
+  
+        return agent.send(body);
+};
+
 
 describe('Post Hoax', () =>{
 
@@ -31,4 +78,12 @@ describe('Post Hoax', () =>{
         expect(error.message).toBe(message);
       });
 
+
+    it('returns 200 when valid hoax submitted with authorized user', async() =>{
+        await addUser();
+       const response = await postHoax({ content: 'Hoax content' }, { auth : {
+            email: 'user1@mail.com', password:'P4ssword'
+        }});
+        expect(response.status).toBe(200);
+    })
 })
