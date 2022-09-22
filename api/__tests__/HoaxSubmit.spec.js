@@ -36,7 +36,7 @@ beforeAll( async () => {
 };
 
 
-const postHoax = async (body = null,options ={} ) =>{
+const postHoax = async (body = null, options ={} ) =>{
     let agent = request(app);
     let token;
         if(options.auth){
@@ -113,8 +113,17 @@ describe('Post Hoax', () =>{
     ${'gr'}    | ${gr.hoax_submit_success} 
     ${'en'}    | ${en.hoax_submit_success} 
     `('returns $message to success submit when language is $language', async ({ language, message }) => {
-        const nowInMillis = new Date().getTime();
-        const response = await postHoax({content: 'Hoax content'} , {auth: credentials, language});
+        const response = await postHoax({content: 'Hoax content'} , {auth:  {email: 'user1@mail.com', password:'P4ssword'}, language});
         expect(response.body.message).toBe(message)
       });
+
+      it.each`
+      language | message
+      ${'gr'}    | ${gr.validation_failure} 
+      ${'en'}    | ${en.validation_failure} 
+      `('returns 400 and $message when hoax content is less than 10 characters and language is $language', async ({ language, message }) => {
+          const response = await postHoax({content: '123456789'} , {auth:  {email: 'user1@mail.com', password:'P4ssword'}, language});
+          expect(response.status).toBe(400)
+          expect(response.body.message).toBe(message)
+        });
 })
