@@ -3,6 +3,7 @@ const app = require('../src/app');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 const User = require('../src/user/User');
+const Hoax = require('../src/hoax/Hoax');
 const sequelize = require('../src/config/database');
 const bcrypt  = require('bcrypt');
 
@@ -14,6 +15,7 @@ beforeAll( async () => {
   });
 
   beforeEach( async () => {
+    await Hoax.destroy({ truncate: true })
     await User.destroy({ truncate : { cascade : true} });
   });
   
@@ -72,7 +74,7 @@ describe('Post Hoax', () =>{
     ${'gr'}    | ${gr.unauthorized_hoax_submit} 
     ${'en'}    | ${en.unauthorized_hoax_submit} 
     `('returns error body $message for unauthorised request when language is $language', async ({ language, message }) => {
-        const nowInMillis = new Date().getTime();
+        const nowInMillis =new Date().getTime();
         const response = await postHoax(null, {language});
         const error = response.body;
         expect(error.path).toBe('/api/1.0/hoaxes');
@@ -85,5 +87,34 @@ describe('Post Hoax', () =>{
         await addUser();
        const response = await postHoax({ content: 'Hoax content' }, { auth : credentials});
         expect(response.status).toBe(200);
-    })
+    });
+
+    it('saves the hoax to database when authorized user sends valid request', async () =>{
+        
+        await addUser();
+        await postHoax({ content: 'Hoax content' }, { auth : credentials});
+        const hoaxes = await Hoax.findAll();
+        expect(hoaxes.length).toBe(1)
+    });
+
+    it('saves the hoax content and timestamp to database', async () =>{
+      await addUser();
+      const beforeSubmit = Date.now();
+      await postHoax({ content: 'Hoax content' }, { auth : credentials});
+      const hoaxes = await Hoax.findAll();
+      const saveHoax = hoaxes[0];
+      expect(saveHoax.content).toBe('Hoax content');
+      expect(saveHoax.timestamp).toBeGreaterThan(beforeSubmit);
+      expect(saveHoax.timestamp).toBeLessThan(Date.now());
+    });
+
+    it.each`
+    language | message
+    ${'gr'}    | ${gr.hoax_submit_success} 
+    ${'en'}    | ${en.hoax_submit_success} 
+    `('returns $message to success submit when language is $language', async ({ language, message }) => {
+        const nowInMillis = new Date().getTime();
+        const response = await postHoax({content: 'Hoax content'} , {auth: credentials, language});
+        expect(response.body.message).toBe(message)
+      });
 })
