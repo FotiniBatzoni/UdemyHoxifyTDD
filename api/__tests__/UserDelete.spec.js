@@ -24,6 +24,8 @@ const activeUser =  {
     inactive : false
 };
 
+const credentials = {email: 'user1@mail.com', password:'P4ssword'};
+
 const addUser = async (user = {...activeUser}) =>{
 
     const hash = await bcrypt.hash(user.password,10);
@@ -92,7 +94,7 @@ describe('User Delete', () => {
       it('returns 200 ok when delete request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const token = await auth({
-            auth : { email: 'user1@mail.com' , password : 'P4ssword'}
+            auth : credentials
         });
         const response =  await deleteUser(savedUser.id, { token : token });
      
@@ -103,7 +105,7 @@ describe('User Delete', () => {
       it('deletes user from database  when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const token = await auth({
-            auth : { email: 'user1@mail.com' , password : 'P4ssword'}
+            auth : credentials
         });
         await deleteUser(savedUser.id, { token : token });
      
@@ -115,7 +117,7 @@ describe('User Delete', () => {
       it('deletes token from database  when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const token = await auth({
-            auth : { email: 'user1@mail.com' , password : 'P4ssword'}
+            auth : credentials
         });
         await deleteUser(savedUser.id, { token : token });
      
@@ -127,11 +129,11 @@ describe('User Delete', () => {
       it('deletes all tokens from database  when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const token1 = await auth({
-            auth : { email: 'user1@mail.com' , password : 'P4ssword'}
+            auth : credentials
         });
 
         const token2 = await auth({
-            auth : { email: 'user1@mail.com' , password : 'P4ssword'}
+            auth : credentials
         });
         await deleteUser(savedUser.id, { token : token1 });
      

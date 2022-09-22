@@ -40,6 +40,8 @@ const activeUser =  {
     inactive : false
 };
 
+const credentials = {email: 'user1@mail.com', password:'P4ssword'};
+
 const addUser = async (user = {...activeUser}) =>{
 
     const hash = await bcrypt.hash(user.password,10);
@@ -117,27 +119,27 @@ describe('User Update', () => {
 
       it('returns forbidden when request sent with incorrect email in basic authorization', async () => {
         await addUser();
-        const response = await putUser( 5, null, { auth : { email: 'user1000@email.com' , password : 'P4ssword'}});
+        const response = await putUser( 5, null, { auth :credentials});
         expect(response.status).toBe(403);
       } );
 
       it('returns forbidden when request sent with incorrect password in basic authorization', async () => {
         await addUser();
-        const response = await putUser( 5, null, { auth : { email: 'user1@email.com' , password : 'p4ssword'}});
+        const response = await putUser( 5, null, { auth : credentials});
         expect(response.status).toBe(403);
       } );
 
       it('returns forbidden when update request is sent with correct credentials but for different user', async () =>{ 
         await addUser();
         const userToBeUpdated = await addUser({ ...activeUser, username: 'user2', email: 'user2@gmail.com' , password: 'P4ssword'})
-        const response = await putUser( userToBeUpdated.id, null, { auth : { email: 'user1@email.com' , password : 'P4ssword'}});
+        const response = await putUser( userToBeUpdated.id, null, { auth : credentials});
         expect(response.status).toBe(403);
       } );
 
       it('returns forbidden when update request is sent by inactive user with correct credentials but for its own user', async () =>{ 
         const inactiveUser = await addUser({...activeUser, inactive: true});
         const response = await putUser( inactiveUser.id, null, { 
-            auth : { email: 'user1@email.com' , password : 'P4ssword'}
+            auth :credentials
         });
         expect(response.status).toBe(403);
       } );
@@ -145,7 +147,7 @@ describe('User Update', () => {
       it('returns 200 ok when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated'};
-        const response =  await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        const response =  await putUser(savedUser.id, validUpdate, { auth: credentials});
      
         expect(response.status).toBe(200);
 
@@ -154,7 +156,7 @@ describe('User Update', () => {
       it('updates username in database  when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated'};
-        await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        await putUser(savedUser.id, validUpdate, { auth: credentials});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
 
@@ -171,7 +173,7 @@ describe('User Update', () => {
     
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated', image : fileInBase64.base64};
-        await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        await putUser(savedUser.id, validUpdate, { auth: credentials});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
         expect(inDBUser.image).toBeTruthy();
@@ -181,7 +183,7 @@ describe('User Update', () => {
         const fileInBase64 = readFileAsBase64();
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated', image : fileInBase64};
-        const response =  await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        const response =  await putUser(savedUser.id, validUpdate, { auth: credentials});
         expect(Object.keys(response.body)).toEqual([ 'id', 'username', 'email', 'image'])
       });
 
@@ -191,7 +193,7 @@ describe('User Update', () => {
         const fileInBase64 = readFileAsBase64();
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated', image : fileInBase64.base64};
-        await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        await putUser(savedUser.id, validUpdate, { auth: credentials});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
         
@@ -205,11 +207,11 @@ describe('User Update', () => {
         const fileInBase64 = readFileAsBase64();
         const savedUser = await addUser();
         const validUpdate = { username: 'user1-updated', image : fileInBase64};
-        const response = await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        const response = await putUser(savedUser.id, validUpdate, { auth: credentials});
 
         const firstImage = response.body.image;
 
-        await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+        await putUser(savedUser.id, validUpdate, { auth:  credentials});
      
         const profileImagePath = path.join(profileDirectory, firstImage );
         expect(fs.existsSync(profileImagePath)).toBe(false);
@@ -227,7 +229,7 @@ describe('User Update', () => {
       const savedUser = await addUser();
       const invalidUpdate = { username: value};
       const response = await putUser(savedUser.id, invalidUpdate, { 
-        auth: { email: 'user1@mail.com' , password : 'P4ssword' },
+        auth: credentials,
         language: language
       });
       expect(response.status).toBe(400);
@@ -243,7 +245,7 @@ describe('User Update', () => {
     const savedUser = await addUser();
     const validUpdate = { username: 'updated-user', image: testPng + fillBase64};
     const response = await putUser(savedUser.id, validUpdate, { 
-      auth: { email: 'user1@mail.com' , password : 'P4ssword' }
+      auth: credentials
     });
     expect(response.status).toBe(200);
    });
@@ -254,7 +256,7 @@ describe('User Update', () => {
     const savedUser = await addUser();
     const invalidUpdate = { username: 'updated-user', image: base64};
     const response = await putUser(savedUser.id, invalidUpdate, { 
-      auth: { email: 'user1@mail.com' , password : 'P4ssword' }
+      auth:credentials
     });
     expect(response.status).toBe(400);
    });
@@ -263,12 +265,12 @@ describe('User Update', () => {
     const fileInBase64 = readFileAsBase64();
     const savedUser = await addUser();
     const validUpdate = { username: 'user1-updated', image : fileInBase64};
-    const response = await putUser(savedUser.id, validUpdate, { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+    const response = await putUser(savedUser.id, validUpdate, { auth: credentials});
 
     const firstImage = response.body.image;
 
     await putUser(savedUser.id, { username : 'user1-updated2'}, 
-      { auth: { email: 'user1@mail.com' , password : 'P4ssword' }});
+      { auth:credentials});
  
     const profileImagePath = path.join(`${profileDirectory}`, `${firstImage}` );
     expect(fs.existsSync(profileImagePath)).toBe(true);
@@ -288,7 +290,7 @@ describe('User Update', () => {
       const savedUser = await addUser();
       const invalidUpdate = { username: 'updated-user', image: base64};
       const response = await putUser(savedUser.id, invalidUpdate, { 
-        auth: { email: 'user1@mail.com' , password : 'P4ssword' },
+        auth: credentials,
         language,
     });
     expect(response.body.validationErrors.image).toBe(message);
@@ -306,7 +308,7 @@ describe('User Update', () => {
     const savedUser = await addUser();
     const updateBody = { username: 'user1-updated', image : fileInBase64};
     const response = await putUser(savedUser.id, updateBody, { 
-      auth: { email: 'user1@mail.com' , password : 'P4ssword' }
+      auth: credentials
   });
   expect(response.status).toBe(status);
  })
@@ -326,7 +328,7 @@ describe('User Update', () => {
     const savedUser = await addUser();
     const updateBody = { username: 'user1-updated', image: fileInBase64 };
     const response = await putUser(savedUser.id, updateBody, {
-      auth: { email: savedUser.email, password: 'P4ssword' },
+      auth: credentials,
       language: language,
     });
     expect(response.body.validationErrors.image).toBe(message);

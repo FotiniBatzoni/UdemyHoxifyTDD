@@ -24,6 +24,8 @@ beforeAll( async () => {
     inactive : false
 };
 
+    const credentials = {email: 'user1@mail.com', password:'P4ssword'};
+
   const addUser = async (user = {...activeUser}) =>{
 
     const hash = await bcrypt.hash(user.password,10);
@@ -81,9 +83,7 @@ describe('Post Hoax', () =>{
 
     it('returns 200 when valid hoax submitted with authorized user', async() =>{
         await addUser();
-       const response = await postHoax({ content: 'Hoax content' }, { auth : {
-            email: 'user1@mail.com', password:'P4ssword'
-        }});
+       const response = await postHoax({ content: 'Hoax content' }, { auth : credentials});
         expect(response.status).toBe(200);
     })
 })
