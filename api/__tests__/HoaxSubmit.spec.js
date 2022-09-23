@@ -15,7 +15,6 @@ beforeAll( async () => {
   });
 
   beforeEach( async () => {
-    await Hoax.destroy({ truncate: true })
     await User.destroy({ truncate : { cascade : true} });
   });
   
