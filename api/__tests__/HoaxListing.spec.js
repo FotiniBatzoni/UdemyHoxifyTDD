@@ -76,18 +76,15 @@ describe('Listing All Hoaxes', () => {
     expect(response.body.content.length).toBe(10);
   });
 
-//   it('returns 6 users in page content when there are active 6 users and inactive 5 users in database', async () => {
-//     await addHoaxes(6, 5);
-//     const response = await getHoaxes();
-//     expect(response.body.content.length).toBe(6);
-//   });
-
-//   it('returns only id, username, email and inmage in content array for each user', async () => {
-//     await addHoaxes(11);
-//     const response = await getHoaxes();
-//     const user = response.body.content[0];
-//     expect(Object.keys(user)).toEqual(['id', 'username', 'email', 'image']);
-//   });
+  it('returns only id, content, timestamp and user object having id, username, email and inmage in content array for each hoax', async () => {
+    await addHoaxes(11);
+    const response = await getHoaxes();
+    const hoax = response.body.content[0];
+    const hoaxKeys = Object.keys(hoax);
+    const userKeys = Object.keys(hoax.user);
+    expect (hoaxKeys).toEqual(['id','content','timestamp', 'user']);
+    expect(userKeys).toEqual(['id', 'username', 'email', 'image']);
+  });
 
 //   it('returns 2 as totalPages when there are 15 active and 7 inactive users', async () => {
 //     await addHoaxes(15, 7);
