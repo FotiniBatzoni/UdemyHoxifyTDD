@@ -21,16 +21,6 @@ beforeEach(async () => {
   await User.destroy({ truncate : { cascade : true} });
   });
 
-//   const auth = async (options = {}) => {
-//     let token;
-//     if (options.auth) {
-//       const response = await request(app).post('/api/1.0/auth').send(options.auth);
-//       token = response.body.token;
-//     }
-//     return token;
-//   };
-
-
   
 describe('Listing All Hoaxes', () => {
 
@@ -95,7 +85,7 @@ describe('Listing All Hoaxes', () => {
   it('returns second page hoaxes and page indicator when page is set as 1 in request parameter', async () => {
     await addHoaxes(11);
     const response = await getHoaxes().query({ page: 1 });  //it means   request(app).get('/api/1.0/users?page=1')
-    expect(response.body.content[0].content).toBe('hoax content 11');
+    expect(response.body.content[0].content).toBe('hoax content 1');
     expect(response.body.page).toBe(1);
   });
 
@@ -133,5 +123,12 @@ describe('Listing All Hoaxes', () => {
     expect(response.body.page).toBe(0);
   });
 
+  it('returns hoaxes to be ordered from new to old', async () =>{
+    await addHoaxes(11);
+    const response = await getHoaxes();
+    const firstHoax = response.body.content[0];
+    const lastHoax = response.body.content[9];
+    expect(firstHoax.timestamp).toBeGreaterThan(lastHoax.timestamp);
+  })
 });
 

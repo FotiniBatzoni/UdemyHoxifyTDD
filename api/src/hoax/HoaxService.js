@@ -19,6 +19,9 @@ const getHoaxes = async ( page, size ) =>{
         as: 'user',
         attributes:['id', 'username', 'email', 'image']
       },
+      order: [
+        ['id', 'DESC']
+      ],
       limit: size,
       offset: page * size
     });
