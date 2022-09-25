@@ -42,4 +42,12 @@ describe('Upload File For Hoax', () =>{
         expect(attachment.filename).not.toBe('test-png.png');
         expect(attachment.uploadDate.getTime()).toBeGreaterThan(beforeSubmit);
       });
+
+      it('saves file to attachment folder', async () => {
+        await uploadFile();
+        const attachments = await FileAttachment.findAll();
+        const attachment = attachments[0];
+        const filePath = path.join('.',uploadDir,attachmentDir,attachment.filename);
+        expect(fs.existsSync(filePath).toBe(true));
+      });
 })
