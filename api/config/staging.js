@@ -16,7 +16,8 @@
         }
       },
   uploadDir : 'uploads-staging',
-  profileDir : 'profile'
+  profileDir : 'profile',
+  attachmentDir: 'attachment'
 }
   
  
