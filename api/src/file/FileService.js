@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('config');
 const { randomString } = require('../shared/generator');
+const FileAttachment = require('./FileAttachment');
 const { uploadDir, profileDir, attachmentDir} = config;
 const profileFolder = path.join('.' , uploadDir, profileDir);
 const attachmentFolder = path.join('.' , uploadDir, attachmentDir);
@@ -52,6 +53,13 @@ const isLessThan2MB = (buffer) =>{
     };
     return false;
     //return !type ? false : type === 'png' || type === 'jpg' || type === 'jpeg
+  };
+
+  const saveAttachment = async () =>{
+    await FileAttachment.create({
+      filename: randomString(32),
+      uploadDate: new Date()
+    })
   }
   
 
@@ -60,5 +68,6 @@ module.exports = {
     saveProfileImage,
     deleteProfileImage,
     isLessThan2MB,
-    isSupportedFileType
+    isSupportedFileType,
+    saveAttachment
 }
