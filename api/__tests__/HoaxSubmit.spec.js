@@ -168,7 +168,6 @@ describe('Post Hoax', () =>{
     await postHoax({content: 'Hoax content'} , {auth: credentials});
     const hoaxes = await Hoax.findAll();
     const hoax = hoaxes[0];
-    console.log(hoaxes)
     expect(hoax.userId).toBe(user.id);
   });
 
@@ -188,5 +187,36 @@ describe('Post Hoax', () =>{
     const attachmentInDb = await FileAttachment.findOne({ where: { id: uploadedFileId}})
 
     expect(attachmentInDb.hoaxId).toBe(hoax.id);
+  });
+
+  it('returns 200 ok even the attachment does not exist', async () =>{
+    addUser();
+    const response = await postHoax({ content: 'Hoax content', fileAttachment: 1000 } , {auth: credentials});
+    expect(response.status).toBe(200);
+  });
+
+  it('keeps the old associated hoax when new hoax submitted with old attachment id', async () =>{
+    const uploadResponse = await uploadFile();
+    const uploadedFileId = uploadResponse.body.id;
+    await addUser();
+    await postHoax({
+      content: 'Hoax content',
+      fileAttachment: uploadedFileId
+    } , 
+    {auth: credentials}
+    );
+
+    const attachment = await FileAttachment.findOne({ where: { id: uploadedFileId}})
+
+    await postHoax({
+      content: 'Hoax content 2',
+      fileAttachment: uploadedFileId
+    } , 
+    {auth: credentials}
+    );
+
+    const attachmentAfterSecondPost = await FileAttachment.findOne({ where: { id: uploadedFileId}})
+
+    expect(attachment.hoaxId).toBe(attachmentAftersecondPost.hoaxId);
   });
 })

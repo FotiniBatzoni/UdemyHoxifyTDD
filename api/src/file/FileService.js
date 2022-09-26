@@ -76,6 +76,12 @@ const isLessThan2MB = (buffer) =>{
 
   const associateFileToHoax = async( attachmentId, hoaxId ) => {
     const attachment = await FileAttachment.findOne({ where: { id: attachmentId}});
+    if(!attachment){
+      return;
+    }
+    if(attachment.hoaxId){
+      return;
+    }
     attachment.hoaxId = hoaxId;
     await attachment.save();
   }
