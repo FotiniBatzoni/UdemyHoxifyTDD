@@ -85,5 +85,39 @@ describe('Upload File For Hoax', () =>{
     expect(fs.existsSync(filePath)).toBe(true);
   });
 
+  it('returns 400 when uploaded file size is bigger than 5mb ', async() =>{
+    const fiveMB = 5 * 1024 *1024 ;
+    const filePath = path.join('.', '__tests__', 'resources','random-file');
+    fs.writeFileSync(filePath, 'a'.repeat(fiveMB) + 'a');
+    const response = await uploadFile('random-file');
+    expect(response.status).toBe(400);
+    fs.unlinkSync(filePath);
+  });
 
-})
+  it('returns 200 when uploaded file size is 5mb ', async() =>{
+    const fiveMB = 5 * 1024 * 1024;
+    const filePath = path.join('.', '__tests__', 'resources', 'random-file');
+    fs.writeFileSync(filePath, 'a'.repeat(fiveMB));
+    const response = await uploadFile('random-file');
+    expect(response.status).toBe(200);
+    fs.unlinkSync(filePath)
+  })
+
+  it.each`
+  language | message
+  ${'gr'}  | ${gr.attachment_size_limit}
+  ${'en'}  | ${en.attachment_size_limit}
+`('returns $message when attachment size is bigger than 5mb', async ({ language, message }) => {
+  const fiveMB = 5 * 1024 * 1024;
+  const filePath = path.join('.', '__tests__', 'resources', 'random-file');
+  fs.writeFileSync(filePath, 'a'.repeat(fiveMB) + 'a');
+  const nowInMillis = Date.now();
+  const response = await uploadFile('random-file', { language });
+  const error = response.body;
+  expect(error.path).toBe('/api/1.0/hoaxes/attachments');
+  expect(error.message).toBe(message);
+  expect(error.timestamp).toBeGreaterThan(nowInMillis);
+  fs.unlinkSync(filePath);
+});
+
+});
