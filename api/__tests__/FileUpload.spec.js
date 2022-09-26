@@ -25,7 +25,7 @@ const uploadFile = (file = 'test-png.png', options = {}) => {
   if (options.language) {
     agent.set('Accept-Language', options.language);
   }
-  return agent.attach('file', path.join('.', '__tests__', 'resources', 'test-png.png'));
+  return agent.attach('file', path.join('.', '__tests__', 'resources', file));
 };
 
 describe('Upload File For Hoax', () =>{
@@ -51,12 +51,39 @@ describe('Upload File For Hoax', () =>{
         expect(fs.existsSync(filePath)).toBe(true);
       });
 
-      it('saves fileType to attachment folder in Database', async () => {
-        await uploadFile();
-        const attachments = await FileAttachment.findAll();
-        const attachment = attachments[0];
-        console.log(attachment)
-        const filePath = path.join('.',uploadDir,attachmentDir,attachment.filename);
-        expect(attachment.fileType).toBe('image/png');
-      });
+      it.each`
+      file              | fileType
+      ${'test-png.png'} | ${'image/png'}
+      ${'test-gif.gif'} | ${'image/gif'}
+      ${'test-jpg.jpg'} | ${'image/jpeg'}
+      ${'test-pdf.pdf'} | ${'application/pdf'}
+      ${'test-txt.txt'} | ${'text/plain'}
+    `('saves fileType as $fileType in attachment object when $file is uploaded', async ({ fileType, file }) => {
+      await uploadFile(file);
+      const attachments = await FileAttachment.findAll();
+      const attachment = attachments[0];
+      expect(attachment.fileType).toBe(fileType);
+    });
+
+    it.each`
+    file              | fileExtension
+    ${'test-png.png'} | ${'png'}
+    ${'test-gif.gif'} | ${'gif'}
+    ${'test-jpg.jpg'} | ${'jpeg'}
+    ${'test-pdf.pdf'} | ${'pdf'}
+    ${'test-txt.txt'} | ${null}
+  `('saves filename with extension of $fileExtension in attachment object and stored object when $file is uploaded', async ({ fileExtension, file }) => {
+    await uploadFile(file);
+    const attachments = await FileAttachment.findAll();
+    const attachment = attachments[0];
+    if(file === 'test-txt.txt'){
+      expect(attachment.filename.endsWith('txt')).toBe(false)
+    }else{
+      expect(attachment.filename.endsWith(fileExtension)).toBe(true)
+    }
+    const filePath = path.join('.',uploadDir,attachmentDir,attachment.filename);
+    expect(fs.existsSync(filePath)).toBe(true);
+  });
+
+
 })

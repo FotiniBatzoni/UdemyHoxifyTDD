@@ -58,12 +58,14 @@ const isLessThan2MB = (buffer) =>{
   };
 
   const saveAttachment = async (file) =>{
-    const filename = randomString(32);
+    let fileType= file.mimetype;
+    let ext = fileType.split('/')[1]
+    let filename = `randomString(32).${ext}`;
     await fs.promises.writeFile(path.join(attachmentFolder, filename), file.buffer)
     await FileAttachment.create({
       filename,
       uploadDate: new Date(),
-      fileType: file.mimetype
+      fileType
     })
   }
   
