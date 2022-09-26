@@ -20,6 +20,6 @@ Hoax.init({
     }
 );
 
-Hoax.hasOne(FileAttachment, { foreignKey: 'hoaxId '})
+Hoax.hasOne(FileAttachment, { foreignKey: 'hoaxId', onDelete: 'cascade' });
 
 module.exports = Hoax;

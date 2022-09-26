@@ -4,6 +4,7 @@ const NotFoundException = require('../error/NotFoundException');
 const FileService = require('../file/FileService');
 
 const save = async (body, user) =>{
+
     const hoax={
         content: body.content,
         timestamp: Date.now(),
@@ -11,7 +12,8 @@ const save = async (body, user) =>{
     }
     const { id } = await Hoax.create(hoax);
     if(body.fileAttachment){
-     await  FileService.F(body.fileAttachment, id)
+
+     await  FileService.associateFileToHoax(body.fileAttachment, id)
     }
 };
 

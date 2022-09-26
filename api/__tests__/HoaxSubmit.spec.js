@@ -164,33 +164,40 @@ describe('Post Hoax', () =>{
     });
 
   it('stores hoax owner id in database', async () =>{
-    const user = addUser();
+    const user =await addUser();
     await postHoax({content: 'Hoax content'} , {auth: credentials});
+
     const hoaxes = await Hoax.findAll();
     const hoax = hoaxes[0];
-    expect(hoax.userId).toBe(user.id);
+   expect(hoax.userId).toBe(user.id);
   });
 
   it('associates hoax with attachment in database', async () =>{
     const uploadResponse = await uploadFile();
     const uploadedFileId = uploadResponse.body.id;
     await addUser();
-    await postHoax({
-      content: 'Hoax content',
-      fileAttachment: uploadedFileId
-    } , 
-    {auth: credentials}
+    await postHoax(
+      {
+        content: 'Hoax content',
+        fileAttachment: uploadedFileId,
+      },
+      { auth: credentials }
     );
     const hoaxes = await Hoax.findAll();
     const hoax = hoaxes[0];
 
-    const attachmentInDb = await FileAttachment.findOne({ where: { id: uploadedFileId}})
+      // console.log('hoax.id '+hoax.id)
+      // console.log('uploadedFileId '+uploadedFileId)
 
+
+    const attachmentInDb = await FileAttachment.findOne({ where: { id: uploadedFileId } });
+
+    // console.log(attachmentInDb.dataValues)
     expect(attachmentInDb.hoaxId).toBe(hoax.id);
   });
 
   it('returns 200 ok even the attachment does not exist', async () =>{
-    addUser();
+    await addUser();
     const response = await postHoax({ content: 'Hoax content', fileAttachment: 1000 } , {auth: credentials});
     expect(response.status).toBe(200);
   });
@@ -217,6 +224,6 @@ describe('Post Hoax', () =>{
 
     const attachmentAfterSecondPost = await FileAttachment.findOne({ where: { id: uploadedFileId}})
 
-    expect(attachment.hoaxId).toBe(attachmentAftersecondPost.hoaxId);
+    expect(attachment.hoaxId).toBe(attachmentAfterSecondPost.hoaxId);
   });
 })
