@@ -4,8 +4,10 @@ const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 const User = require('../src/user/User');
 const Hoax = require('../src/hoax/Hoax');
+const FileAttachment = require('../src/file/FileAttachment');
 const sequelize = require('../src/config/database');
 const bcrypt  = require('bcrypt');
+const path =require('path');
 
 
 beforeAll( async () => {
@@ -15,6 +17,7 @@ beforeAll( async () => {
   });
 
   beforeEach( async () => {
+    await FileAttachment.destroy({ truncate: true})
     await User.destroy({ truncate : { cascade : true} });
   });
   
@@ -25,13 +28,21 @@ beforeAll( async () => {
     inactive : false
 };
 
-    const credentials = {email: 'user1@mail.com', password:'P4ssword'};
+const credentials = {email: 'user1@mail.com', password:'P4ssword'};
 
-  const addUser = async (user = {...activeUser}) =>{
+const addUser = async (user = {...activeUser}) =>{
 
     const hash = await bcrypt.hash(user.password,10);
     user.password = hash;
     return await User.create(user);
+};
+
+const uploadFile = (file = 'test-png.png', options = {}) => {
+  const agent = request(app).post('/api/1.0/hoaxes/attachments');
+  if (options.language) {
+    agent.set('Accept-Language', options.language);
+  }
+  return agent.attach('file', path.join('.', '__tests__', 'resources', file));
 };
 
 
@@ -117,7 +128,7 @@ describe('Post Hoax', () =>{
         expect(response.body.message).toBe(message)
       });
 
-      it.each`
+    it.each`
       language | message
       ${'gr'}    | ${gr.validation_failure} 
       ${'en'}    | ${en.validation_failure} 
@@ -128,7 +139,7 @@ describe('Post Hoax', () =>{
           expect(response.body.message).toBe(message)
         });
 
-        it('returns validation error body when an invalid hoax post by authorized user ', async () =>{
+     it('returns validation error body when an invalid hoax post by authorized user ', async () =>{
           await  addUser();
           const nowInMillis =  Date.now();
           const response = await postHoax({content: '123456789'} , {auth: credentials});
@@ -136,9 +147,9 @@ describe('Post Hoax', () =>{
           expect(error.timestamp).toBeGreaterThan(nowInMillis);
           expect(error.path).toBe('/api/1.0/hoaxes');
           expect(Object.keys(error)).toEqual(['path','timestamp', 'message', 'validationErrors'])
-        });
+    });
 
-        it.each`
+    it.each`
         language | content             | contentForDescription | message
         ${'gr'}  | ${null}             | ${'null'}             | ${gr.hoax_content_size}
         ${'gr'}  | ${'a'.repeat(9)}    | ${'short'}            | ${gr.hoax_content_size}
@@ -150,13 +161,32 @@ describe('Post Hoax', () =>{
            await  addUser();
             const response = await postHoax({content: content} , {auth: credentials, language});
             expect(response.body.validationErrors.content).toBe(message)
-          });
+    });
 
-          it('stores hoax owner id in database', async () =>{
-            const user = addUser();
-            await postHoax({content: 'Hoax content'} , {auth: credentials});
-            const hoaxes = await Hoax.findAll();
-            const hoax = hoaxes[0];
-            expect(hoax.userId).toBe(user.id);
-          });
+  it('stores hoax owner id in database', async () =>{
+    const user = addUser();
+    await postHoax({content: 'Hoax content'} , {auth: credentials});
+    const hoaxes = await Hoax.findAll();
+    const hoax = hoaxes[0];
+    console.log(hoaxes)
+    expect(hoax.userId).toBe(user.id);
+  });
+
+  it('associates hoax with attachment in database', async () =>{
+    const uploadResponse = await uploadFile();
+    const uploadedFileId = uploadResponse.body.id;
+    await addUser();
+    await postHoax({
+      content: 'Hoax content',
+      fileAttachment: uploadedFileId
+    } , 
+    {auth: credentials}
+    );
+    const hoaxes = await Hoax.findAll();
+    const hoax = hoaxes[0];
+
+    const attachmentInDb = await FileAttachment.findOne({ where: { id: uploadedFileId}})
+
+    expect(attachmentInDb.hoaxId).toBe(hoax.id);
+  });
 })

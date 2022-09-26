@@ -62,11 +62,22 @@ const isLessThan2MB = (buffer) =>{
     let ext = fileType.split('/')[1]
     let filename = `${randomString(32)}.${ext}`;
     await fs.promises.writeFile(path.join(attachmentFolder, filename), file.buffer)
-    await FileAttachment.create({
+    const savedAttachment = await FileAttachment.create({
       filename,
       uploadDate: new Date(),
       fileType
-    })
+    });
+
+    return {
+      id: savedAttachment.id
+    }
+
+  };
+
+  const associateFileToHoax = async( attachmentId, hoaxId ) => {
+    const attachment = await FileAttachment.findOne({ where: { id: attachmentId}});
+    attachment.hoaxId = hoaxId;
+    await attachment.save();
   }
   
 
@@ -76,5 +87,6 @@ module.exports = {
     deleteProfileImage,
     isLessThan2MB,
     isSupportedFileType,
-    saveAttachment
+    saveAttachment,
+    associateFileToHoax
 }
