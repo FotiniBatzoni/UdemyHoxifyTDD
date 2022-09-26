@@ -3,9 +3,11 @@ const path = require('path');
 const config = require('config');
 const { randomString } = require('../shared/generator');
 const FileAttachment = require('./FileAttachment');
+const { type } = require('os');
 const { uploadDir, profileDir, attachmentDir} = config;
 const profileFolder = path.join('.' , uploadDir, profileDir);
 const attachmentFolder = path.join('.' , uploadDir, attachmentDir);
+
 
 
 const createFolders = () =>{
@@ -60,7 +62,8 @@ const isLessThan2MB = (buffer) =>{
     await fs.promises.writeFile(path.join(attachmentFolder, filename), file.buffer)
     await FileAttachment.create({
       filename,
-      uploadDate: new Date()
+      uploadDate: new Date(),
+      fileType: file.mimetype
     })
   }
   

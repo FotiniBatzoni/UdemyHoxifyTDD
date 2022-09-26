@@ -25,7 +25,7 @@ const uploadFile = (file = 'test-png.png', options = {}) => {
   if (options.language) {
     agent.set('Accept-Language', options.language);
   }
-  return agent.attach('file', path.join('.', '__tests__', 'resources', file));
+  return agent.attach('file', path.join('.', '__tests__', 'resources', 'test-png.png'));
 };
 
 describe('Upload File For Hoax', () =>{
@@ -48,6 +48,15 @@ describe('Upload File For Hoax', () =>{
         const attachments = await FileAttachment.findAll();
         const attachment = attachments[0];
         const filePath = path.join('.',uploadDir,attachmentDir,attachment.filename);
-        expect(fs.existsSync(filePath).toBe(true));
+        expect(fs.existsSync(filePath)).toBe(true);
+      });
+
+      it('saves fileType to attachment folder in Database', async () => {
+        await uploadFile();
+        const attachments = await FileAttachment.findAll();
+        const attachment = attachments[0];
+        console.log(attachment)
+        const filePath = path.join('.',uploadDir,attachmentDir,attachment.filename);
+        expect(attachment.fileType).toBe('image/png');
       });
 })
