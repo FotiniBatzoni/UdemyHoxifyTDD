@@ -1,19 +1,12 @@
 const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
-const sequelize = require('../src/config/database');
 const SMTPServer = require('smtp-server').SMTPServer;
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 const bcrypt = require('bcrypt');
 const { response } = require('../src/app');
 
-//to call the database before calling the tests
-beforeAll(async () => {
-  if(process.env.NODE_ENV === 'test'){
-    await sequelize.sync();
-}
-  });
   
   //Cleaning the user table before each test
 beforeEach(async () => {

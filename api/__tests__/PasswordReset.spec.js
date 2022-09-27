@@ -2,8 +2,6 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const Token = require('../src/auth/Token');
-const FileAttachment =require('../src/file/FileAttachment');
-const sequelize = require('../src/config/database');
 const SMTPServer = require('smtp-server').SMTPServer;
 const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
@@ -38,12 +36,12 @@ beforeAll(async () => {
   
     await server.listen(config.mail.port, 'localhost');
   
-    if(process.env.NODE_ENV === 'test'){
-      await sequelize.sync();
-     }
+    // if(process.env.NODE_ENV === 'test'){
+    //   await sequelize.sync();
+    //  }
   
    
-    await FileAttachment.destroy({ truncate: true});
+    // await FileAttachment.destroy({ truncate: true});
 
     jest.setTimeout(20000);
   });

@@ -38,9 +38,9 @@ beforeAll(async () => {
 
   await server.listen(config.mail.port, 'localhost');
 
-  if(process.env.NODE_ENV === 'test'){
-    await sequelize.sync();
-}
+//   if(process.env.NODE_ENV === 'test'){
+//     await sequelize.sync();
+// }
 
   jest.setTimeout(20000);
 });

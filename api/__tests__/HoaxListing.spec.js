@@ -3,16 +3,10 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const Hoax = require('../src/hoax/Hoax');
 const FileAttachment = require('../src/file/FileAttachment');
-const sequelize = require('../src/config/database');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
 
-//to call the database before calling the tests
-beforeAll(async () => {
-  if(process.env.NODE_ENV === 'test'){
-    await sequelize.sync();
-}
-  });
+
   
   //Cleaning the user table before each test
 beforeEach(async () => {
