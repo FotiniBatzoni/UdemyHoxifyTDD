@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const AuthenticationException = require('../auth/AuthenticationException');
-const NotFoundException = require('../error/NotFoundException');
 const HoaxService = require('./HoaxService');
 const { check, validationResult } = require('express-validator');
 const ValidationException = require('../error/ValidationException');
