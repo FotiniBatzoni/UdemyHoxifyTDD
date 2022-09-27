@@ -28,8 +28,9 @@ describe('createFolders', () =>{
     })
 });
 
-describe('Schedule unused file clean up' , () =>{
+describe('Schedule unused file clean up' , (done) =>{
     it('removes the 24 hours old file with attachment entry if not used in hoax', async () =>{
+        jest.useFakeTimers()
        const testFile = path.join('.','__tests__','resources','test-png.png'); 
        const targetPath = path.join(attachmentFolder, 'test-file1');
        fs.copyFileSync(testFile, targetPath);
@@ -39,8 +40,14 @@ describe('Schedule unused file clean up' , () =>{
             uploadDate: uploadDate
        })
        await FileService.removeUnusedAttachments();
-       const attachmentAfterRemove = await FileAttachment.findOne({ where: { id: attachment.id}});
-       expect(attachmentAfterRemove).toBeNull();
-       expect(fs.existsSync(targetPath)).toBe(false);
+       jest.advanceTimersByTime(24  * 60 * 60 * 1000 + 5000);
+       //jest.useRealTimers();
+       setTimeout( async () =>{
+            const attachmentAfterRemove = await FileAttachment.findOne({ where: { id: attachment.id}});
+            expect(attachmentAfterRemove).toBeNull();
+            expect(fs.existsSync(targetPath)).toBe(false);
+            done();
+       },1000)
+
     })
 })
