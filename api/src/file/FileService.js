@@ -3,7 +3,8 @@ const path = require('path');
 const config = require('config');
 const { randomString } = require('../shared/generator');
 const FileAttachment = require('./FileAttachment');
-const { type } = require('os');
+const Sequelize = require('sequelize');
+
 const { uploadDir, profileDir, attachmentDir} = config;
 const profileFolder = path.join('.' , uploadDir, profileDir);
 const attachmentFolder = path.join('.' , uploadDir, attachmentDir);
@@ -92,7 +93,26 @@ const isLessThan2MB = (buffer) =>{
     
     console.log(attachment.dataValues)
   }
-  //2fe4d09d9b73c3106b65379bd4b79c29
+ 
+  const removeUnusedAttachments = async () =>{
+    const oneDayOld = new Date(Date.now() - 24 * 60 * 60 * 1000 );
+    const attachments = await FileAttachment.findAll({
+      where:{
+        uploadDate:{
+          [Sequelize.Op.lt] : oneDayOld
+        },
+        hoaxId :{
+          [Sequelize.Op.is]: null
+        }
+      }
+    })
+
+    for(let attachment of attachments){
+     const { filename} =  attachment.get({ plain: true})
+     await fs.promises.unlink(path.join(attachmentFolder, filename));
+     await attachment.destroy();
+    }
+  }
 
 module.exports = {
     createFolders,
@@ -101,5 +121,6 @@ module.exports = {
     isLessThan2MB,
     isSupportedFileType,
     saveAttachment,
-    associateFileToHoax
+    associateFileToHoax,
+    removeUnusedAttachments
 }
