@@ -17,9 +17,11 @@ beforeAll( async () => {
   });
 
   beforeEach( async () => {
-    await FileAttachment.destroy({ truncate: true})
+    await FileAttachment.destroy({ truncate: true});
     await User.destroy({ truncate : { cascade : true} });
   });
+
+
   
   const activeUser =  {
     username : 'user1',

@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const Token = require('../src/auth/Token');
+const FileAttachment =require('../src/file/FileAttachment');
 const sequelize = require('../src/config/database');
 const SMTPServer = require('smtp-server').SMTPServer;
 const bcrypt  = require('bcrypt');
@@ -41,6 +42,9 @@ beforeAll(async () => {
       await sequelize.sync();
      }
   
+   
+    await FileAttachment.destroy({ truncate: true});
+
     jest.setTimeout(20000);
   });
   

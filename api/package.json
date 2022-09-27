@@ -81,6 +81,7 @@
       "<rootDir>/node_modules/",
       "<rootDir>/config"
     ],
+    "testSequencer":"<rootDir>/test-sequencer.js",
     "verbose": true
   }
 }
