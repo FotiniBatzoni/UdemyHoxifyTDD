@@ -48,6 +48,10 @@ router.get(['/api/1.0/hoaxes','/api/1.0/users/:userId/hoaxes'], pagination, asyn
   }
 });
 
+router.delete('/api/1.0/hoaxes/:hoaxId', (req,res) =>{ 
+  res.status(403).send();
+})
+
 
 
 module.exports = router;
