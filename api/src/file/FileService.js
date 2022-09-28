@@ -119,6 +119,16 @@ const isLessThan2MB = (buffer) =>{
 
   }
 
+  const deleteAttachment = async (filename) => {
+    const filePath = path.join(attachmentFolder, filename );
+    try{
+      await fs.promises.access(filePath);
+      await fs.promises.unlink(filePath)
+    }catch(err){
+
+    }
+  }
+
 module.exports = {
     createFolders,
     saveProfileImage,
@@ -127,5 +137,6 @@ module.exports = {
     isSupportedFileType,
     saveAttachment,
     associateFileToHoax,
-    removeUnusedAttachments
-}
+    removeUnusedAttachments,
+    deleteAttachment 
+  }

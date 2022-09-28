@@ -2,15 +2,26 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const Hoax = require('../src/hoax/Hoax');
+const FileAttachment = require('../src/file/FileAttachment');
 const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
+const fs = require('fs');
+const path = require('path');
+const config = require('config');
 
+const { uploadDir, attachmentDir } = config;
+const attachmentFolder = path.join('.',uploadDir, attachmentDir);
 
-
+const filename = 'test-file-hoax-delete' + Date.now();
+const targetPath = path.join(attachmentFolder, filename );
+const testFilePath = path.join('.','__tests__','resources','test-png.png');
 
 beforeEach( async () => {
     await User.destroy({ truncate : { cascade : true} });
+    if(fs.existsSync(targetPath)){
+        fs.unlink(targetPath)
+    }
 });
 
 const activeUser =  {
@@ -36,6 +47,16 @@ const addHoax = async (userId )=>{
         userId: userId
     })
 }
+
+const addFileAttachmnent = async (hoaxId) =>{
+    fs.copyFileSync(testFilePath, targetPath)
+    return await FileAttachment.create({
+        filename: filename,
+        uploadDate: new Date(),
+        hoaxId: hoaxId
+    })
+}
+
 
 const auth = async (options = {}) => {
     let token;
@@ -89,7 +110,7 @@ describe('Delete Hoax', () =>{
         const user2 = await addUser({ ... activeUser, username:'user2',email:'user2@mail.com'});
         const token = await auth({ auth: {email: user2.email, password: 'P4ssword'}});
         const response = await deleteHoax( hoax.id, {token});
-        console.log(response)
+      
         expect(response.status).toBe(403);
       });
 
@@ -108,6 +129,25 @@ describe('Delete Hoax', () =>{
         await deleteHoax( hoax.id, {token});
         const hoaxInDb = await Hoax.findOne({ where : { id: hoax.id }})
         expect(hoaxInDb).toBeNull();
+      });
+
+      it('removes the fileAttachment from database when user deletes their hoax', async () =>{
+        const user = await addUser();
+        const hoax = await addHoax(user.id);
+        const attachment = await addFileAttachmnent(hoax.id);
+        const token = await auth({ auth: credentials});
+        await deleteHoax( hoax.id, {token});
+        const attachmentInDb = await FileAttachment.findOne({ where : { id: attachment.id }})
+        expect(attachmentInDb).toBeNull();
+      });
+
+      it('removes the file from storage when user deletes their hoax', async () =>{
+        const user = await addUser();
+        const hoax = await addHoax(user.id);
+        await addFileAttachmnent(hoax.id);
+        const token = await auth({ auth: credentials});
+        await deleteHoax( hoax.id, {token});
+        expect(fs.existsSync(targetPath)).toBe(false);
       });
 })
 
