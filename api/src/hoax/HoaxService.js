@@ -79,7 +79,12 @@ const getHoaxes = async ( page, size, userId ) =>{
   }
 };
 
+const getHoax = async ( hoaxId ) =>{
+  return await Hoax.findOne({ where: { id: hoaxId }})
+}
+
 module.exports = {
     save,
-    getHoaxes
+    getHoaxes,
+    getHoax
 };
