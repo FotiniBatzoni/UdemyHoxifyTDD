@@ -89,6 +89,7 @@ describe('Delete Hoax', () =>{
         const user2 = await addUser({ ... activeUser, username:'user2',email:'user2@mail.com'});
         const token = await auth({ auth: {email: user2.email, password: 'P4ssword'}});
         const response = await deleteHoax( hoax.id, {token});
+        console.log(response)
         expect(response.status).toBe(403);
       });
 
@@ -98,6 +99,15 @@ describe('Delete Hoax', () =>{
         const token = await auth({ auth: credentials});
         const response = await deleteHoax( hoax.id, {token});
         expect(response.status).toBe(200);
-      })
+      });
+
+      it('removes the hoax from database when user deletes their hoax', async () =>{
+        const user = await addUser();
+        const hoax = await addHoax(user.id);
+        const token = await auth({ auth: credentials});
+        await deleteHoax( hoax.id, {token});
+        const hoaxInDb = await Hoax.findOne({ where : { id: hoax.id }})
+        expect(hoaxInDb).toBeNull();
+      });
 })
 

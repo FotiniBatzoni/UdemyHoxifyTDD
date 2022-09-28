@@ -79,12 +79,18 @@ const getHoaxes = async ( page, size, userId ) =>{
   }
 };
 
-const getHoax = async ( hoaxId ) =>{
-  return await Hoax.findOne({ where: { id: hoaxId }})
+const deleteHoax = async ( hoaxId, userId ) =>{
+  const hoaxToBeDeleted =  await Hoax.findOne({ 
+    where: { id: hoaxId, userId: userId }
+  })
+  if(!hoaxToBeDeleted){
+   throw new ForbiddenException('unauthorized_hoax_delete')
+  }
+  await hoaxToBeDeleted.destroy();
 }
 
 module.exports = {
     save,
     getHoaxes,
-    getHoax
+    deleteHoax
 };
