@@ -26,5 +26,6 @@
     "unauthorized_hoax_submit" : "Δεν έχετε δικαιωδοσία να αναρτήσετε hoax",
     "hoax_submit_success" : "Το Hoax αποθηκεύτηκε",
     "hoax_content_size": "Το Hoax πρέπει να είναι τουλάχιστον 10 και το πολύ 5000 χαρακτήρες",
-    "attachment_size_limit":"Το συννημένο δεν μπορεί να είναι μεγαλυτέρο των 5MB"
+    "attachment_size_limit":"Το συννημένο δεν μπορεί να είναι μεγαλυτέρο των 5MB",
+    "unauthorized_hoax_delete": "Ο χρήστης δεν έχει δικαιωδοσία να διαγράψει το hoax"
 }

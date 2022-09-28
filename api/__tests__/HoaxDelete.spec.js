@@ -61,6 +61,18 @@ describe('Delete Hoax', () =>{
     it('returns 403 when token is invalid', async () =>{
         const response = await deleteHoax(5, { token : 'abcde'});
         expect(response.status).toBe(403);
-    })
+    });
+
+    it.each`
+    language | message
+    ${'gr'}    | ${gr.unauthorized_hoax_delete} 
+    ${'en'}    | ${en.unauthorized_hoax_delete} 
+    `('returns error body $message for unauthorised request when language is $language', async ({ language, message }) => {
+        const nowInMillis = new Date().getTime();
+        const response = await deleteHoax(5, {language});
+        expect(response.body.path).toBe('/api/1.0/hoaxes/5');
+        expect(response.body.timestamp).toBeGreaterThan(nowInMillis);
+        expect(response.body.message).toBe(message);
+      });
 })
 
