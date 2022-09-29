@@ -6,5 +6,5 @@ beforeAll(async () => {
     await sequelize.sync();
   }
   
-  await FileAttachment.destroy({ truncate: true});
+  //await FileAttachment.destroy({ truncate: true});
 });
