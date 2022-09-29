@@ -4,6 +4,7 @@ const config = require('config');
 const { randomString } = require('../shared/generator');
 const FileAttachment = require('./FileAttachment');
 const Sequelize = require('sequelize');
+const Hoax = require('../hoax/Hoax');
 
 const { uploadDir, profileDir, attachmentDir} = config;
 const profileFolder = path.join('.' , uploadDir, profileDir);
@@ -127,7 +128,28 @@ const isLessThan2MB = (buffer) =>{
     }catch(err){
 
     }
-  }
+  };
+
+  const deleteUserFiles = async (user) => {
+    if (user.image) {
+      await deleteProfileImage(user.image);
+    }
+    const attachments = await FileAttachment.findAll({
+      attributes: ['filename'],
+      include: {
+        model: Hoax,
+        where: {
+          userId: user.id,
+        },
+      },
+    });
+    if (attachments.length === 0) {
+      return;
+    }
+    for (let attachment of attachments) {
+      await deleteAttachment(attachment.getDataValue('filename'));
+    }
+  };
 
 module.exports = {
     createFolders,
@@ -138,5 +160,6 @@ module.exports = {
     saveAttachment,
     associateFileToHoax,
     removeUnusedAttachments,
-    deleteAttachment 
+    deleteAttachment,
+    deleteUserFiles
   }

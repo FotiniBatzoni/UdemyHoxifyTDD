@@ -3,6 +3,7 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const Token = require('../src/auth/Token');
 const Hoax = require('../src/hoax/Hoax');
+const FileAttachment = require('../src/file/FileAttachment')
 const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
@@ -11,8 +12,9 @@ const path = require('path');
 const config = require('config');
 const pagination = require('../src/middleware/pagination');
 
-const { uploadDir, profileDir } = config;
-const profileFolder = path.join('.', uploadDir, profileDir)
+const { uploadDir, profileDir, attachmentDir } = config;
+const profileFolder = path.join('.', uploadDir, profileDir);
+const attachmentFolder = path.join('.', uploadDir, attachmentDir);
 
 beforeEach( async () => {
     await User.destroy({ truncate : { cascade : true} });
@@ -159,7 +161,7 @@ describe('User Delete', () => {
         expect(hoaxes.length).toBe(0);
       });
 
-      fit('removes profile image when user is deleted', async () =>{
+      it('removes profile image when user is deleted', async () =>{
         const user = await addUser();
         const token = await auth( { auth: credentials});
         const storedFileName = 'profile-image-for-user1';
@@ -170,5 +172,29 @@ describe('User Delete', () => {
         await user.save();
         await deleteUser(user.id, { token });
         expect(fs.existsSync(targetPath)).toBe(false);
-      })
+      });
+      it('deletes hoax attachment from storage and database when delete user request sent from authorized user', async () => {
+        const savedUser = await addUser();
+        const token = await auth({ auth: credentials });
+    
+        const storedFileName = 'hoax-attachment-for-user1';
+        const testFilePath = path.join('.', '__tests__', 'resources', 'test-png.png');
+        const targetPath = path.join(attachmentFolder, storedFileName);
+        fs.copyFileSync(testFilePath, targetPath);
+    
+        const storedAttachment = await FileAttachment.create({
+          filename: storedFileName,
+        });
+    
+        await request(app)
+          .post('/api/1.0/hoaxes')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ content: 'Hoax content', fileAttachment: storedAttachment.id });
+    
+        await deleteUser(savedUser.id, { token: token });
+    
+        const storedAttachmentAfterDelete = await FileAttachment.findOne({ where: { id: storedAttachment.id } });
+        expect(storedAttachmentAfterDelete).toBeNull();
+        expect(fs.existsSync(targetPath)).toBe(false);
+      });
  })
