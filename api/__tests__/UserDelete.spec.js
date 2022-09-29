@@ -6,7 +6,13 @@ const Hoax = require('../src/hoax/Hoax');
 const bcrypt  = require('bcrypt');
 const en = require('../locales/en/translation.json');
 const gr = require('../locales/gr/translation.json');
+const fs = require('fs');
+const path = require('path');
+const config = require('config');
+const pagination = require('../src/middleware/pagination');
 
+const { uploadDir, profileDir } = config;
+const profileFolder = path.join('.', uploadDir, profileDir)
 
 beforeEach( async () => {
     await User.destroy({ truncate : { cascade : true} });
@@ -152,4 +158,17 @@ describe('User Delete', () => {
         const hoaxes = await Hoax.findAll();
         expect(hoaxes.length).toBe(0);
       });
+
+      fit('removes profile image when user is deleted', async () =>{
+        const user = await addUser();
+        const token = await auth( { auth: credentials});
+        const storedFileName = 'profile-image-for-user1';
+        const testFilePath = path.join('.','__tests__','resources','test-png.png');
+        const targetPath = path.join(profileFolder, storedFileName);
+        fs.copyFileSync(testFilePath, targetPath);
+        user.image = storedFileName;
+        await user.save();
+        await deleteUser(user.id, { token });
+        expect(fs.existsSync(targetPath)).toBe(false);
+      })
  })
