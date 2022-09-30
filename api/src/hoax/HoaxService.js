@@ -20,36 +20,34 @@ const save = async (body, user) =>{
 };
 
 const getHoaxes = async ( page, size, userId ) =>{
-    let where = {};
-    if(userId){
-        const user = await User.findOne({ where : { id : userId}});
-        if(!user){
-            throw new NotFoundException('user_not_found');
-        }
-        where : {
-             id: userId
-         }
+  let where = {};
+  if (userId) {
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('user_not_found');
     }
 
-    const hoaxesWithCount = await Hoax.findAndCountAll({
-      attributes: ['id', 'content', 'timestamp'],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'email', 'image'],
-          where,
-        },
-        {
-          model: FileAttachment,
-          as: 'fileAttachment',
-          attributes: ['filename', 'fileType'],
-        },
-      ],
-      order: [['id', 'DESC']],
-      limit: size,
-      offset: page * size,
-    });
+    where = { id: userId };
+  }
+  const hoaxesWithCount = await Hoax.findAndCountAll({
+    attributes: ['id', 'content', 'timestamp'],
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username', 'email', 'image'],
+        where,
+      },
+      {
+        model: FileAttachment,
+        as: 'fileAttachment',
+        attributes: ['filename', 'fileType'],
+      },
+    ],
+    order: [['id', 'DESC']],
+    limit: size,
+    offset: page * size,
+  });
 
     // const newContent = [];
     // for(let hoaxSequelize of hoaxesWithCount.rows){
@@ -61,23 +59,36 @@ const getHoaxes = async ( page, size, userId ) =>{
     // }
 
     //OR
+   
 
-    const newContent = hoaxesWithCount.rows.map((hoaxSequelize) =>{
-      const hoaxAsJSON=hoaxSequelize.get({ plain:true })
-      if(hoaxAsJSON.fileAttachment === null){
-        delete hoaxAsJSON.fileAttachment;
-      }
-      return hoaxAsJSON;
-    })
-    
+//     const newContent = hoaxesWithCount.rows.map((hoaxSequelize) =>{
+//       const hoaxAsJSON=hoaxSequelize.get({ plain:true })
+//       if(hoaxAsJSON.fileAttachment === null){
+//         delete hoaxAsJSON.fileAttachment;
+//       }
+//       return hoaxAsJSON;
+//     })
+//   return {
+//     content: newContent,
+//     page,
+//     size,
+//     totalPages: Math.ceil( hoaxesWithCount.count / size),
+//   }
 
-  return {
-    content: newContent,
-    page,
-    size,
-    totalPages: Math.ceil( hoaxesWithCount.count / size),
-  }
-};
+return {
+  content: hoaxesWithCount.rows.map((hoaxSequelize) => {
+    const hoaxAsJSON = hoaxSequelize.get({ plain: true });
+    if (hoaxAsJSON.fileAttachment === null) {
+      delete hoaxAsJSON.fileAttachment;
+    }
+    return hoaxAsJSON;
+  }),
+  page,
+  size,
+  totalPages: Math.ceil(hoaxesWithCount.count / size),
+
+ };
+}
 
 const deleteHoax = async ( hoaxId, userId ) =>{
   const hoaxToBeDeleted =  await Hoax.findOne({ 

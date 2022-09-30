@@ -224,7 +224,9 @@ describe('Listing Hoaxes of a User', () => {
     await addHoaxes(5, user.id);
     const user2 = await addUser('user2');
     await addHoaxes(6, user2.id);
+
     const response = await getHoaxes(user.id);
+   // console.log(response)
     expect(response.body.content.length).toBe(5);
   })
 
