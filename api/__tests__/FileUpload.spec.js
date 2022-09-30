@@ -89,10 +89,11 @@ describe('Upload File For Hoax', () =>{
   });
 
   it('returns 200 when uploaded file size is 5mb ', async() =>{
-    const fiveMB = 5 * 1024 * 1024;
+    const fiveMB = (5 * 1024 * 1024) -1;
     const filePath = path.join('.', '__tests__', 'resources', 'random-file');
     fs.writeFileSync(filePath, 'a'.repeat(fiveMB));
     const response = await uploadFile('random-file');
+    console.log(response)
     expect(response.status).toBe(200);
     fs.unlinkSync(filePath)
   })
