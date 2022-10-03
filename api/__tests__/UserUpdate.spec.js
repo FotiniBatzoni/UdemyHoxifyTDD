@@ -139,9 +139,11 @@ describe('User Update', () => {
 
       it('returns 200 ok when valid update request is sent by an authorised user', async () =>{
         const savedUser = await addUser();
-        const validUpdate = { username: 'user1-updated'};
-        const response =  await putUser(savedUser.id, validUpdate, { auth: credentials});
-     
+        const validUpdate = { username: 'user1-updated' };
+        const response = await putUser(savedUser.id, validUpdate, {
+          auth: { email: savedUser.email, password: 'P4ssword' },
+        });
+        //console.log(response)
         expect(response.status).toBe(200);
 
       });
@@ -165,10 +167,11 @@ describe('User Update', () => {
         const fileInBase64 = readFileAsBase64();
     
         const savedUser = await addUser();
-        const validUpdate = { username: 'user1-updated', image : fileInBase64.base64};
+        const validUpdate = { username: 'user1-updated', image : fileInBase64};
         await putUser(savedUser.id, validUpdate, { auth: credentials});
      
         const inDBUser = await User.findOne({ where  : { id: savedUser.id}});
+        //console.log(inDBUser)
         expect(inDBUser.image).toBeTruthy();
       });
 

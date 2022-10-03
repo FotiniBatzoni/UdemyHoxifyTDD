@@ -106,6 +106,7 @@ const updateUser = async (id, updatedBody) => {
   user.image = await FileService.saveProfileImage(updatedBody.image);
 
   await user.save();
+  //onsole.log(user)
   return {
     id: id,
     username : user.username,

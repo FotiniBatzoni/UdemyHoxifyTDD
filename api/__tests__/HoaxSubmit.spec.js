@@ -181,13 +181,7 @@ describe('Post Hoax', () =>{
     const hoaxes = await Hoax.findAll();
     const hoax = hoaxes[0];
 
-      // console.log('hoax.id '+hoax.id)
-      // console.log('uploadedFileId '+uploadedFileId)
-
-
     const attachmentInDb = await FileAttachment.findOne({ where: { id: uploadedFileId } });
-
-    // console.log(attachmentInDb.dataValues)
     expect(attachmentInDb.hoaxId).toBe(hoax.id);
   });
 
