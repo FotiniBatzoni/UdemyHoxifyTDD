@@ -12,7 +12,6 @@ const save = async (body, user) =>{
         timestamp: Date.now(),
         userId: user.id
     }
-    console.log(hoax)
     const { id } = await Hoax.create(hoax);
     if(body.fileAttachment){
      await  FileService.associateFileToHoax(body.fileAttachment, id)

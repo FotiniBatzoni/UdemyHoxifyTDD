@@ -77,22 +77,16 @@ const isLessThan2MB = (buffer) =>{
   };
 
   const associateFileToHoax = async( attachmentId, hoaxId ) => {
-    // console.log('attachmentId  '+attachmentId)
-    // console.log('hoaxId  ' + hoaxId)
-    const attachment = await FileAttachment.findOne({ where: { id: attachmentId}});
- 
-    if(!attachment){
+    const attachment = await FileAttachment.findOne({ where: { id: attachmentId } });
+    if (!attachment) {
       return;
     }
-    if(attachment.hoaxId){
+    if (attachment.hoaxId) {
       return;
     }
-  
-    // attachment.dataValues.hoaxId = hoaxId;
-
+    attachment.hoaxId = hoaxId;
     await attachment.save();
-    
-    console.log(attachment.dataValues)
+   
   }
  
   const removeUnusedAttachments = async () =>{

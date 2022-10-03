@@ -177,6 +177,7 @@ describe('Post Hoax', () =>{
         fileAttachment: uploadedFileId,
       },
       { auth: credentials }
+
     );
     const hoaxes = await Hoax.findAll();
     const hoax = hoaxes[0];
