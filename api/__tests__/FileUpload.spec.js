@@ -93,7 +93,7 @@ describe('Upload File For Hoax', () =>{
     const filePath = path.join('.', '__tests__', 'resources', 'random-file');
     fs.writeFileSync(filePath, 'a'.repeat(fiveMB));
     const response = await uploadFile('random-file');
-    console.log(response)
+
     expect(response.status).toBe(200);
     fs.unlinkSync(filePath)
   })

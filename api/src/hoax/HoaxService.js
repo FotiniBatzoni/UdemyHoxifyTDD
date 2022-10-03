@@ -94,9 +94,8 @@ const deleteHoax = async ( hoaxId, userId ) =>{
     where: { id: hoaxId, userId: userId },
     include: { model : FileAttachment}
   })
-  console.log(hoaxToBeDeleted)
+
   if(!hoaxToBeDeleted){
-    console.log('here')
    throw new ForbiddenException('unauthorized_hoax_delete')
   }
   const hoaxJSON = hoaxToBeDeleted.get({ plain: true });

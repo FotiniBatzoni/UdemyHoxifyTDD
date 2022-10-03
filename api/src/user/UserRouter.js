@@ -120,8 +120,7 @@ check('username')
 check('image')
 .custom( async ( imageAsbase64String ) => {
 
-
-  if(!imageAsbase64String.base64){
+  if(!imageAsbase64String){
     return true;
   }
   const buffer = Buffer.from( imageAsbase64String.base64, 'base64' );
