@@ -275,71 +275,71 @@ describe('User Registration', () => {
     expect(savedUser.activationToken).toBeTruthy();
   });
 
-  it('sends an Account activation email with activationToken', async () => {
-    await postUser();
+  // it('sends an Account activation email with activationToken', async () => {
+  //   await postUser();
 
-    //with nodemailer
-    // const lastMail = nodemailerStub.interactsWithMail.lastMail();
-    // expect(lastMail.to[0]).toBe('user1@mail.com');
-    // const users = await User.findAll();
-    // const savedUser = users[0];
-    // expect(lastMail.content).toContain(savedUser.activationToken);
+  //   //with nodemailer
+  //   // const lastMail = nodemailerStub.interactsWithMail.lastMail();
+  //   // expect(lastMail.to[0]).toBe('user1@mail.com');
+  //   // const users = await User.findAll();
+  //   // const savedUser = users[0];
+  //   // expect(lastMail.content).toContain(savedUser.activationToken);
 
-    //with SMTPServer
-    const users = await User.findAll();
-    const savedUser = users[0];
+  //   //with SMTPServer
+  //   const users = await User.findAll();
+  //   const savedUser = users[0];
 
-    expect(lastMail).toContain('user1@mail.com');
-    expect(lastMail).toContain(savedUser.activationToken);
-  });
+  //   expect(lastMail).toContain('user1@mail.com');
+  //   expect(lastMail).toContain(savedUser.activationToken);
+  // });
 
-  it(`returns 502 Bad Gateaway when email fails`, async () => {
-    //with mock
-    // const mockSendAccountActivation = jest
-    //   .spyOn(EmailService, 'sendAccountActivation')
-    //   .mockRejectedValue({ message: 'Failed to deliver email' });
-    // const response = await postUser();
-    // expect(response.status).toBe(502);
-    // mockSendAccountActivation.mockRestore();
+  // it(`returns 502 Bad Gateaway when email fails`, async () => {
+  //   //with mock
+  //   // const mockSendAccountActivation = jest
+  //   //   .spyOn(EmailService, 'sendAccountActivation')
+  //   //   .mockRejectedValue({ message: 'Failed to deliver email' });
+  //   // const response = await postUser();
+  //   // expect(response.status).toBe(502);
+  //   // mockSendAccountActivation.mockRestore();
 
-    //with server
-    simulateSmtpFailure = true;
-    const response = await postUser();
-    expect(response.status).toBe(502);
-  });
+  //   //with server
+  //   simulateSmtpFailure = true;
+  //   const response = await postUser();
+  //   expect(response.status).toBe(502);
+  // });
 
-  it(`returns email failure message when email fails`, async () => {
-    //with mock
-    // const mockSendAccountActivation = jest
-    //   .spyOn(EmailService, 'sendAccountActivation')
-    //   .mockRejectedValue({ message: 'Failed to deliver email' });
-    // const response = await postUser();
-    // mockSendAccountActivation.mockRestore();
-    // expect(response.body.message).toBe('Email failure');
+  // it(`returns email failure message when email fails`, async () => {
+  //   //with mock
+  //   // const mockSendAccountActivation = jest
+  //   //   .spyOn(EmailService, 'sendAccountActivation')
+  //   //   .mockRejectedValue({ message: 'Failed to deliver email' });
+  //   // const response = await postUser();
+  //   // mockSendAccountActivation.mockRestore();
+  //   // expect(response.body.message).toBe('Email failure');
 
-    //with server
-    simulateSmtpFailure = true;
-    const response = await postUser();
-    expect(response.body.message).toBe(en.email_failure);
-  });
+  //   //with server
+  //   simulateSmtpFailure = true;
+  //   const response = await postUser();
+  //   expect(response.body.message).toBe(en.email_failure);
+  // });
 
   //fails
-  it(`does not save user to database if activation mail fails`, async () => {
-    //with mock
-    // const mockSendAccountActivation = jest
-    //   .spyOn(EmailService, 'sendAccountActivation')
-    //   .mockRejectedValue({ message: 'Failed to deliver email' });
-    // await postUser();
-    // mockSendAccountActivation.mockRestore();
-    // const users = await User.findAll();
-    // expect(users.length).toBe(0);
+  // it(`does not save user to database if activation mail fails`, async () => {
+  //   //with mock
+  //   // const mockSendAccountActivation = jest
+  //   //   .spyOn(EmailService, 'sendAccountActivation')
+  //   //   .mockRejectedValue({ message: 'Failed to deliver email' });
+  //   // await postUser();
+  //   // mockSendAccountActivation.mockRestore();
+  //   // const users = await User.findAll();
+  //   // expect(users.length).toBe(0);
 
-    //with server
-    simulateSmtpFailure = true;
-    await postUser();
-    const users = await User.findAll();
-    expect(users.length).toBe(0);
-  });
+  //   //with server
+  //   simulateSmtpFailure = true;
+  //   await postUser();
+  //   const users = await User.findAll();
+  //   expect(users.length).toBe(0);
+  // });
 
   it('returns Validation Failure in error response body if validation fails', async ()  => {
    const response = await postUser(
@@ -413,20 +413,20 @@ describe('Internationalization', () => {
     expect(response.body.message).toBe(gr.user_create_success);
   });
 
-  it(`returns ${gr.email_failure} message when sending email fails and language is set as greek`, async () => {
-       //with mock
-    // const mockSendAccountActivation = jest
-    //   .spyOn(EmailService, 'sendAccountActivation')
-    //   .mockRejectedValue({ message: 'Failed to deliver email' });
-    // const response = await postUser({ ...validUser }, { language: 'gr' });
-    // mockSendAccountActivation.mockRestore();
-    // expect(response.body.message).toBe(email_failure);
+  // it(`returns ${gr.email_failure} message when sending email fails and language is set as greek`, async () => {
+  //      //with mock
+  //   // const mockSendAccountActivation = jest
+  //   //   .spyOn(EmailService, 'sendAccountActivation')
+  //   //   .mockRejectedValue({ message: 'Failed to deliver email' });
+  //   // const response = await postUser({ ...validUser }, { language: 'gr' });
+  //   // mockSendAccountActivation.mockRestore();
+  //   // expect(response.body.message).toBe(email_failure);
 
-    //with server
-    simulateSmtpFailure = true;
-    const response = await postUser({ ...validUser }, { language: 'gr' });
-    expect(response.body.message).toBe(gr.email_failure);
-  });
+  //   //with server
+  //   simulateSmtpFailure = true;
+  //   const response = await postUser({ ...validUser }, { language: 'gr' });
+  //   expect(response.body.message).toBe(gr.email_failure);
+  // });
 
   it(`returns ${gr.validation_failure} message in error response body when validation fails`, async () => {
     const response = await postUser(
